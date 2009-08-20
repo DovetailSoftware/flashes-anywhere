@@ -1,0 +1,285 @@
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' Product        :  Flashes Anywhere(tm)
+'
+' Series         :  First Choice Workflow Series(tm)
+'
+' Name           :  Upgrade Routine
+'
+' Description    :  Upgrades old-style flashes to new FA format
+'
+' Author          : First Choice Software, Inc.
+'                   4412 Spicewood Springs Road
+'                   Suite 701
+'                   Austin, TX  78759
+'                   (512) 418-2905
+'                   EMAIL: support@fchoice.com
+'                   www.fchoice.com
+'
+' Platforms       : This version supports Clarify 4.5 and later
+'
+' Copyright (C)  2000 First Choice Software, Inc.
+' All Rights Reserved.
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' Functional Declarations
+'
+' Copyright (C) 2000. First Choice Software. All Rights Reserved.
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+OPTION EXPLICIT
+
+Dim d_p           As Boolean            ' Debug Print Boolean
+Dim num_flash     As Integer            ' Number of flashes viewed
+Dim num_processed As Integer            ' How many are processed
+Dim num_warn      As Integer            ' Number of warnings
+Dim num_bypass    As Integer            ' Number bypassed (already processed)
+
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' Strip Non-numeric Characters
+'
+' Copyright (C) 2000. First Choice Software. All Rights Reserved.
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+Public Function strip_non_num(in_phone As String) As String
+  Dim ret_str As String                 ' Output string
+  Dim t_int   As Integer                ' Looping integer
+  Dim t_char  As String                 ' Each character
+  
+                                        ' Build up output string of only
+                                        '  numeric characters
+  For t_int = 1 To Len(in_phone)
+     t_char = Mid$(in_phone, t_int, 1)
+     If Instr("0123456789", t_char) > 0 Then
+        ret_str = ret_str & t_char
+     End If
+  Next t_int
+  strip_non_num = ret_str
+End Function
+
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' Update Alerts
+'
+' Copyright (C) 2000. First Choice Software. All Rights Reserved.
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+Public Sub alerts()
+  Dim a_int    As Integer               ' Temp integer
+  Dim a_list   As List                  ' List returned from query
+  Dim a_objid  As Long                  ' Temp objid
+  Dim a_rec    As Record                ' Record from query
+  Dim o_int    As Integer               ' Temp integer
+  Dim o_rec    As Record                ' Record from query
+  Dim sql      As New SQLDB             ' Sql database connection
+  Dim sql_str  As String                ' Sql action string
+  Dim t_int    As Integer               ' Looping integer
+  Dim t_list   As List                  ' List returned from query
+  Dim t_rec    As New Record            ' Record from query
+  Dim t_ret    As New BulkRetrieve      ' Structure for db read
+  Dim t_sav    As New BulkSave          ' Structure for db save
+  Dim al_name  As String                ' Alias name (for alert_to_other)
+  Dim tbl_rec  As Record                ' Table record from list
+  Dim tbl_list As List                  ' List of table records
+  Dim t_ind    As Integer               ' Index from list
+
+                                        ' Get the alerts and related records
+                                        ' See if there are any "alert_to_other"
+                                        '  records, or any related to other records
+  t_ret.SimpleQuery 0, "alert"
+  t_ret.SimpleQuery 1, "alert_table"
+  t_ret.TraverseFromParent 2, "alert2alert_to_other", 0
+  t_ret.TraverseFromParent 3, "alert2site", 0
+  t_ret.TraverseFromParent 4, "alert2contact", 0
+  t_ret.TraverseFromParent 5, "alert2contract", 0
+  t_ret.TraverseFromParent 6, "alert2bus_org", 0
+  t_ret.TraverseFromParent 7, "alert2opportunity", 0
+  t_ret.TraverseFromParent 8, "alert2lead", 0
+  t_ret.RetrieveRecords
+
+                                        ' Get list of alert tables set up
+  Set tbl_list = t_ret.GetRecordList(1)
+  
+                                        ' Get the list of flashes
+                                        ' Loop through them
+                                        '  Get each one...
+  Set a_list = t_ret.GetRecordList(0)
+  num_flash = a_list.Count
+  For t_int = 0 To a_list.Count - 1
+    Set a_rec = a_list.ItemByIndex(t_int)
+
+                                        ' See if there are any alert_to_other recs
+                                        '  In other words, is this one already processed
+                                        '  If so, don't do it again
+    If d_p Then debug.print "alert " & CStr(a_rec.GetField("objid"))
+    Set t_list = t_ret.GetRelatedRecordList(a_rec, "alert2alert_to_other")
+    If t_list.Count > 0 Then 
+       num_bypass = num_bypass + 1
+       Goto next_alert
+    End If
+
+                                        ' For each of the alert types, see if it is one
+                                        '  If so, process it
+                                        ' First, check sites
+    Set t_list = t_ret.GetRelatedRecordList(a_rec, "alert2site")
+    If t_list.Count > 0 Then
+       o_int = 52
+       t_ind = tbl_list.FindFirstIndex("site", "table_or_view")
+       If t_ind < 0 Then
+          num_warn = num_warn + 1
+          Debug.Print "Cannot process site flash. There is no FA flash record set up for site."
+          Goto next_alert
+       Else
+          Set tbl_rec = tbl_list.ItemByIndex(t_ind)
+          al_name = tbl_rec.GetField("alias_name")
+       End If
+       Goto alert_other
+    End If
+
+                                        ' Now the contacts
+    Set t_list = t_ret.GetRelatedRecordList(a_rec, "alert2contact")
+    If t_list.Count > 0 Then
+       o_int = 45
+       t_ind = tbl_list.FindFirstIndex("contact", "table_or_view")
+       If t_ind < 0 Then
+          num_warn = num_warn + 1
+          Debug.Print "Cannot process contact flash. There is no FA flash record set up for contact."
+          Goto next_alert
+       Else
+          Set tbl_rec = tbl_list.ItemByIndex(t_ind)
+          al_name = tbl_rec.GetField("alias_name")
+       End If
+       Goto alert_other
+    End If
+
+                                        ' Then contracts
+    Set t_list = t_ret.GetRelatedRecordList(a_rec, "alert2contract")
+    If t_list.Count > 0 Then
+       o_int = 86
+       t_ind = tbl_list.FindFirstIndex("contract", "table_or_view")
+       If t_ind < 0 Then
+          num_warn = num_warn + 1
+          Debug.Print "Cannot process contract flash. There is no FA flash record set up for contract."
+          Goto next_alert
+       Else
+          Set tbl_rec = tbl_list.ItemByIndex(t_ind)
+          al_name = tbl_rec.GetField("alias_name")
+       End If
+       Goto alert_other
+    End If
+    
+                                        ' Then bus_orgs
+    Set t_list = t_ret.GetRelatedRecordList(a_rec, "alert2bus_org")
+    If t_list.Count > 0 Then
+       o_int = 173
+       t_ind = tbl_list.FindFirstIndex("bus_org", "table_or_view")
+       If t_ind < 0 Then
+          num_warn = num_warn + 1
+          Debug.Print "Cannot process account flash. There is no FA flash record set up for account."
+          Goto next_alert
+       Else
+          Set tbl_rec = tbl_list.ItemByIndex(t_ind)
+          al_name = tbl_rec.GetField("alias_name")
+       End If
+       Goto alert_other
+    End If
+
+                                        ' Then opportunity
+    Set t_list = t_ret.GetRelatedRecordList(a_rec, "alert2opportunity")
+    If t_list.Count > 0 Then
+       o_int = 5000
+       t_ind = tbl_list.FindFirstIndex("opportunity", "table_or_view")
+       If t_ind < 0 Then
+          num_warn = num_warn + 1
+          Debug.Print "Cannot process opportunity flash. There is no FA flash record set up for opportunity."
+          Goto next_alert
+       Else
+          Set tbl_rec = tbl_list.ItemByIndex(t_ind)
+          al_name = tbl_rec.GetField("alias_name")
+       End If
+       Goto alert_other
+    End If
+
+                                        ' Then bus_orgs
+    Set t_list = t_ret.GetRelatedRecordList(a_rec, "alert2lead")
+    If t_list.Count > 0 Then
+       o_int = 5312
+       t_ind = tbl_list.FindFirstIndex("lead", "table_or_view")
+       If t_ind < 0 Then
+          num_warn = num_warn + 1
+          Debug.Print "Cannot process lead flash. There is no FA flash record set up for lead."
+          Goto next_alert
+       Else
+          Set tbl_rec = tbl_list.ItemByIndex(t_ind)
+          al_name = tbl_rec.GetField("alias_name")
+       End If
+       Goto alert_other
+    End If
+
+                                        ' Now we will process this flash
+                                        ' Increment the count
+                                        ' Get the object record
+                                        ' Get the current status
+                                        ' Get the current objid
+alert_other:
+    num_processed = num_processed + 1
+    Set o_rec = t_list.ItemByIndex(0)
+    a_int = a_rec.GetField("active")
+    a_objid = a_rec.GetField("objid")
+
+                                        ' Build up the SQL string
+                                        ' Update the data in the alert_record
+    sql_str = "update table_alert set active=0, x_active=" & a_int & ", alert2site=NULL, " & _
+               "alert2contact=NULL, alert2contract=NULL, alert2bus_org=NULL, " & _
+               "alert2opportunity=NULL, alert2lead=NULL where objid=" & a_objid
+    sql.Execute sql_str
+
+                                        ' Now build the alert_to_other record
+                                        ' Insert the record, relate it to the alert
+    Set t_rec = New Record
+    t_rec.RecordType = "alert_to_other"
+    t_rec.SetField "obj_id", o_rec.GetField("objid")
+    t_rec.SetField "obj_num", o_int
+    t_rec.SetField "alias_name", al_name
+    t_sav.InsertRecord t_rec
+    t_sav.RelateRecords a_rec, t_rec, "alert2alert_to_other"
+
+                                        ' Get the next alert
+next_alert:
+  Next t_int
+
+                                        ' If there's anything to save, save it
+  If t_sav.CountByType > 0 Then t_sav.Save
+End Sub
+
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' Flashes Anywhere Data Upgrade Routine
+'
+' Copyright (C) 2000. First Choice Software. All Rights Reserved.
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+Public Sub fa_upgrade()
+                                        ' Initialize variables
+  d_p = FALSE
+  num_flash = 0
+  num_processed = 0
+  num_warn = 0
+  num_bypass = 0
+  
+                                        ' Print header
+                                        ' Process flashes
+                                        ' Print footer
+  Debug.Print ""
+  Debug.Print "Upgrading Clarify data for Flashes Anywhere"
+  Debug.Print "Process started             : " & App.CurrentDate
+  Debug.Print ""
+  Debug.Print "Upgrading flashes..."
+  alerts
+  Debug.Print ""
+  Debug.Print "Processing Completed        : " & App.CurrentDate
+  Debug.Print "Number of Flashes Considered: " & Trim$(Str$(num_flash))
+  Debug.Print ""
+  Debug.Print "Number of Warnings          : " & Trim$(Str$(num_warn))
+  Debug.Print "Number of Flashes Bypassed  : " & Trim$(Str$(num_bypass))
+  Debug.Print "Number of Flashes Upgraded  : " & Trim$(Str$(num_processed))
+  Debug.Print ""
+End Sub

@@ -1,0 +1,190 @@
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' Product        :  Flashes Anywhere(tm)
+'
+' Series         :  First Choice Workflow Series(tm)
+'
+' Name           :  Flash Retrieval API
+'
+' Description    :  APIs to get flashes for given objects
+'
+' Author          : First Choice Software, Inc.
+'                   4412 Spicewood Springs Road
+'                   Suite 701
+'                   Austin, TX  78759
+'                   (512) 418-2905
+'                   EMAIL: support@fchoice.com
+'                   www.fchoice.com
+'
+' Platforms       : This version supports Clarify 4.5 and later
+'
+' Copyright (C)  2000 First Choice Software, Inc.
+' All Rights Reserved.
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' Functional Declarations
+'
+' Copyright (C) 2000. First Choice Software. All Rights Reserved.
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+OPTION EXPLICIT
+
+Declare Public Function get_table_num_string(tbl_name As String) As Integer
+
+                                        ' Necessary type declarations
+Type long_type
+  ret_long As Long
+End Type
+
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' Get Flashes for Objects
+'
+' Copyright (C) 2000. First Choice Software. All Rights Reserved.
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+Public Function get_flashes_list(obj_names As List, obj_ids As List, _
+                                 ret_list As List) As Integer
+  Dim t_int    As Integer               ' Looping integers
+  Dim t_int2   As Integer               ' Looping integers
+  Dim out_list As New List              ' Output list
+  Dim t_ret    As New BulkRetrieve      ' Structure to query the DB
+  Dim obj_num  As Long                  ' Each table's number
+  Dim t_list   As List                  ' List returned from query
+  Dim t_rec    As Record                ' Each alert record returned
+  Dim cur_time As String                ' Current date/time
+  Dim st_date  As String                ' Start date/time for each flash
+  Dim end_date As String                ' End date/time for each flash
+  Dim o_rec    As Record                ' Alert_to_other record
+  Dim al_list  As List                  ' List of alert records
+  
+                                        ' Get the current date/time
+  cur_time = App.CurrentDate
+
+                                        ' Set the output type of the list
+                                        ' Don't allow duplicates (in case the same
+                                        '  flash is from more than one object
+  out_list.ItemType = "record"
+  out_list.AllowDuplicates = False
+
+                                        ' Loop through the associated objects
+                                        ' Get the table's number
+                                        ' Query to find all of the alert_to_other
+                                        '  records and associated flashes
+  For t_int = 0 To obj_names.Count - 1
+    obj_num = get_table_num_string(obj_names.ItemByIndex(t_int))
+    t_ret.Clear
+    t_ret.SimpleQuery 0, "alert_to_other"
+    t_ret.AppendFilter 0, "obj_num", cbEqual, obj_num
+    t_ret.AppendFilter 0, "obj_id", cbEqual, obj_ids.ItemByIndex(t_int)
+    t_ret.TraverseFromParent 1, "to_other2alert", 0
+    t_ret.AppendFilter 1, "x_active", cbEqual, 1
+    t_ret.RetrieveRecords
+  
+                                        ' Get the list of flashes
+                                        ' Loop through them, and add to 
+                                        '  list of alerts, but don't if not
+                                        '  in proper date range (or if flash
+                                        '   is always active)
+    Set t_list = t_ret.GetRecordList(0)
+    For t_int2 = 0 To t_list.Count - 1  
+      Set o_rec = t_list.ItemByIndex(t_int2)
+      Set al_list = t_ret.GetRelatedRecordList(o_rec, "to_other2alert")
+        If al_list.Count > 0 Then
+          Set t_rec = al_list.ItemByIndex(0)
+          If Left$(t_rec.GetField("start_date"), 1) <> "?" Then
+             If CDate(t_rec.GetField("start_date")) > App.CurrentDate Then
+             	GoTo next_flash
+             End If
+          End If
+          If Left$(t_rec.GetField("end_date"), 1) <> "?" Then
+             If CDate(t_rec.GetField("end_date")) < App.CurrentDate Then
+             	GoTo next_flash
+             End If
+          End If
+          t_rec.SetField "disp_from", o_rec.GetField("alias_name")
+          out_list.AppendItem t_rec
+        End If
+next_flash:
+    Next t_int2
+  Next t_int
+
+                                        ' Return the output data.
+                                        ' All was OK
+  Set ret_list = out_list
+  get_flashes_list = 0
+End Function
+
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' Get Flashes - Simple Form
+'
+' Copyright (C) 2000. First Choice Software. All Rights Reserved.
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+Public Function get_flashes(obj_name1 As String, obj_id1 As Long, _
+                            obj_name2 As String, obj_id2 As Long, _
+                            obj_name3 As String, obj_id3 As Long, _
+                            obj_name4 As String, obj_id4 As Long, _
+                            obj_name5 As String, obj_id5 As Long, _
+                            ret_list As List) As Integer
+  Dim obj_names As New List             ' List of object names
+  Dim obj_ids   As New List             ' List of object IDs
+  
+                                        ' Set the list types
+  obj_names.ItemType = "string"
+  obj_ids.ItemType = "Long"
+  
+                                        ' Add items to list if they are supplied
+  If Trim$(obj_name1) <> "" Then
+     obj_names.AppendItem obj_name1
+     obj_ids.AppendItem obj_id1
+  End If
+  If Trim$(obj_name2) <> "" Then
+     obj_names.AppendItem obj_name2
+     obj_ids.AppendItem obj_id2
+  End If
+  If Trim$(obj_name3) <> "" Then
+     obj_names.AppendItem obj_name3
+     obj_ids.AppendItem obj_id3
+  End If
+  If Trim$(obj_name4) <> "" Then
+     obj_names.AppendItem obj_name4
+     obj_ids.AppendItem obj_id4
+  End If
+  If Trim$(obj_name5) <> "" Then
+     obj_names.AppendItem obj_name5
+     obj_ids.AppendItem obj_id5
+  End If
+
+                                        ' Now call on the real routine
+  get_flashes = get_flashes_list(obj_names, obj_ids, ret_list)
+End Function
+
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' Test Driver
+'
+' Copyright (C) 2000. First Choice Software. All Rights Reserved.
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+Public Sub test()
+  Dim obj_names As New List
+  Dim obj_ids   As New List
+  Dim ret_list  As List
+  Dim ret_int   As Integer
+  Dim t_int     As Integer
+  
+  obj_names.ItemType = "string"
+  obj_ids.ItemType = "long"
+  
+  obj_names.AppendItem "site"
+  obj_ids.AppendItem 268435458
+  
+  ret_int = get_flashes_list(obj_names, obj_ids, ret_list)
+  If ret_int <> 0 Then
+     Debug.Print "Return error is: " & Trim$(Str$(ret_int))
+  Else
+     Debug.Print "API succeeded. Number of flashes found: " & Trim$(Str$(ret_list.Count))
+     For t_int = 0 To ret_list.Count - 1
+       Debug.Print ret_list.ItemByIndex(t_int)
+     Next t_int
+  End If
+End Sub

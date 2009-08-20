@@ -1,0 +1,567 @@
+/* Global strings for flashes anywhere */
+
+OBJECT TYPE = "fc_string", NAME="15600_EN_US"
+  UNIQUE_FIELD = id, locale, application
+  FIELDS
+   id=15600;
+   locale="EN_US";
+   application="";
+   string="Flashes Anywhere";
+  END_FIELDS
+END_OBJECT NAME="15600_EN_US"
+
+/* Painting strings for form 2801 */
+
+OBJECT TYPE = "fc_string", NAME="15610_EN_US"
+  UNIQUE_FIELD = id, locale, application
+  FIELDS
+   id=15610;
+   locale="EN_US";
+   application="";
+   string="Select Flashes";
+  END_FIELDS
+END_OBJECT NAME="15610_EN_US"
+
+OBJECT TYPE = "fc_string", NAME="15611_EN_US"
+  UNIQUE_FIELD = id, locale, application
+  FIELDS
+   id=15611;
+   locale="EN_US";
+   application="";
+   string="Title/Text:";
+  END_FIELDS
+END_OBJECT NAME="15611_EN_US"
+
+OBJECT TYPE = "fc_string", NAME="15612_EN_US"
+  UNIQUE_FIELD = id, locale, application
+  FIELDS
+   id=15612;
+   locale="EN_US";
+   application="";
+   string="Query For:";
+  END_FIELDS
+END_OBJECT NAME="15612_EN_US"
+
+OBJECT TYPE = "fc_string", NAME="15613_EN_US"
+  UNIQUE_FIELD = id, locale, application
+  FIELDS
+   id=15613;
+   locale="EN_US";
+   application="";
+   string="Only urgent flashes";
+  END_FIELDS
+END_OBJECT NAME="15613_EN_US"
+
+OBJECT TYPE = "fc_string", NAME="15614_EN_US"
+  UNIQUE_FIELD = id, locale, application
+  FIELDS
+   id=15614;
+   locale="EN_US";
+   application="";
+   string="Include inactive flashes";
+  END_FIELDS
+END_OBJECT NAME="15614_EN_US"
+
+OBJECT TYPE = "fc_string", NAME="15615_EN_US"
+  UNIQUE_FIELD = id, locale, application
+  FIELDS
+   id=15615;
+   locale="EN_US";
+   application="";
+   string="List";
+  END_FIELDS
+END_OBJECT NAME="15615_EN_US"
+
+OBJECT TYPE = "fc_string", NAME="15616_EN_US"
+  UNIQUE_FIELD = id, locale, application
+  FIELDS
+   id=15616;
+   locale="EN_US";
+   application="";
+   string="New";
+  END_FIELDS
+END_OBJECT NAME="15616_EN_US"
+
+OBJECT TYPE = "fc_string", NAME="15617_EN_US"
+  UNIQUE_FIELD = id, locale, application
+  FIELDS
+   id=15617;
+   locale="EN_US";
+   application="";
+   string="Open";
+  END_FIELDS
+END_OBJECT NAME="15617_EN_US"
+
+OBJECT TYPE = "fc_string", NAME="15618_EN_US"
+  UNIQUE_FIELD = id, locale, application
+  FIELDS
+   id=15618;
+   locale="EN_US";
+   application="";
+   string="Delete";
+  END_FIELDS
+END_OBJECT NAME="15618_EN_US"
+
+OBJECT TYPE = "fc_string", NAME="15619_EN_US"
+  UNIQUE_FIELD = id, locale, application
+  FIELDS
+   id=15619;
+   locale="EN_US";
+   application="";
+   string="Done";
+  END_FIELDS
+END_OBJECT NAME="15619_EN_US"
+
+/* Painting strings for form 2800 */
+
+OBJECT TYPE = "fc_string", NAME="15625_EN_US"
+  UNIQUE_FIELD = id, locale, application
+  FIELDS
+   id=15625;
+   locale="EN_US";
+   application="";
+   string="Flash-Enabled Objects";
+  END_FIELDS
+END_OBJECT NAME="15625_EN_US"
+
+OBJECT TYPE = "fc_string", NAME="15626_EN_US"
+  UNIQUE_FIELD = id, locale, application
+  FIELDS
+   id=15626;
+   locale="EN_US";
+   application="";
+   string="Table/View:";
+  END_FIELDS
+END_OBJECT NAME="15626_EN_US"
+
+OBJECT TYPE = "fc_string", NAME="15627_EN_US"
+  UNIQUE_FIELD = id, locale, application
+  FIELDS
+   id=15627;
+   locale="EN_US";
+   application="";
+   string="Alias:";
+  END_FIELDS
+END_OBJECT NAME="15627_EN_US"
+
+OBJECT TYPE = "fc_string", NAME="15628_EN_US"
+  UNIQUE_FIELD = id, locale, application
+  FIELDS
+   id=15628;
+   locale="EN_US";
+   application="";
+   string="Objid Field:";
+  END_FIELDS
+END_OBJECT NAME="15628_EN_US"
+
+OBJECT TYPE = "fc_string", NAME="15629_EN_US"
+  UNIQUE_FIELD = id, locale, application
+  FIELDS
+   id=15629;
+   locale="EN_US";
+   application="";
+   string="Label/Column 1:";
+  END_FIELDS
+END_OBJECT NAME="15629_EN_US"
+
+OBJECT TYPE = "fc_string", NAME="15630_EN_US"
+  UNIQUE_FIELD = id, locale, application
+  FIELDS
+   id=15630;
+   locale="EN_US";
+   application="";
+   string="Label/Column 2:";
+  END_FIELDS
+END_OBJECT NAME="15630_EN_US"
+
+OBJECT TYPE = "fc_string", NAME="15631_EN_US"
+  UNIQUE_FIELD = id, locale, application
+  FIELDS
+   id=15631;
+   locale="EN_US";
+   application="";
+   string="Label/Column 3:";
+  END_FIELDS
+END_OBJECT NAME="15631_EN_US"
+
+OBJECT TYPE = "fc_string", NAME="15632_EN_US"
+  UNIQUE_FIELD = id, locale, application
+  FIELDS
+   id=15632;
+   locale="EN_US";
+   application="";
+   string="Label/Column 4:";
+  END_FIELDS
+END_OBJECT NAME="15632_EN_US"
+
+OBJECT TYPE = "fc_string", NAME="15633_EN_US"
+  UNIQUE_FIELD = id, locale, application
+  FIELDS
+   id=15633;
+   locale="EN_US";
+   application="";
+   string="Label/Column 5:";
+  END_FIELDS
+END_OBJECT NAME="15633_EN_US"
+
+OBJECT TYPE = "fc_string", NAME="15634_EN_US"
+  UNIQUE_FIELD = id, locale, application
+  FIELDS
+   id=15634;
+   locale="EN_US";
+   application="";
+   string="Output Col 1:";
+  END_FIELDS
+END_OBJECT NAME="15634_EN_US"
+
+OBJECT TYPE = "fc_string", NAME="15635_EN_US"
+  UNIQUE_FIELD = id, locale, application
+  FIELDS
+   id=15635;
+   locale="EN_US";
+   application="";
+   string="Output Col 2:";
+  END_FIELDS
+END_OBJECT NAME="15635_EN_US"
+
+OBJECT TYPE = "fc_string", NAME="15636_EN_US"
+  UNIQUE_FIELD = id, locale, application
+  FIELDS
+   id=15636;
+   locale="EN_US";
+   application="";
+   string="Add";
+  END_FIELDS
+END_OBJECT NAME="15636_EN_US"
+
+OBJECT TYPE = "fc_string", NAME="15637_EN_US"
+  UNIQUE_FIELD = id, locale, application
+  FIELDS
+   id=15637;
+   locale="EN_US";
+   application="";
+   string="Replace";
+  END_FIELDS
+END_OBJECT NAME="15637_EN_US"
+
+OBJECT TYPE = "fc_string", NAME="15638_EN_US"
+  UNIQUE_FIELD = id, locale, application
+  FIELDS
+   id=15638;
+   locale="EN_US";
+   application="";
+   string="Delete";
+  END_FIELDS
+END_OBJECT NAME="15638_EN_US"
+
+OBJECT TYPE = "fc_string", NAME="15639_EN_US"
+  UNIQUE_FIELD = id, locale, application
+  FIELDS
+   id=15639;
+   locale="EN_US";
+   application="";
+   string="Clear";
+  END_FIELDS
+END_OBJECT NAME="15639_EN_US"
+
+OBJECT TYPE = "fc_string", NAME="15640_EN_US"
+  UNIQUE_FIELD = id, locale, application
+  FIELDS
+   id=15640;
+   locale="EN_US";
+   application="";
+   string="Done";
+  END_FIELDS
+END_OBJECT NAME="15640_EN_US"
+
+/* Painting strings for form 2802 */
+
+OBJECT TYPE = "fc_string", NAME="15650_EN_US"
+  UNIQUE_FIELD = id, locale, application
+  FIELDS
+   id=15650;
+   locale="EN_US";
+   application="";
+   string="Flash";
+  END_FIELDS
+END_OBJECT NAME="15650_EN_US"
+
+OBJECT TYPE = "fc_string", NAME="15651_EN_US"
+  UNIQUE_FIELD = id, locale, application
+  FIELDS
+   id=15651;
+   locale="EN_US";
+   application="";
+   string="General";
+  END_FIELDS
+END_OBJECT NAME="15651_EN_US"
+
+OBJECT TYPE = "fc_string", NAME="15652_EN_US"
+  UNIQUE_FIELD = id, locale, application
+  FIELDS
+   id=15652;
+   locale="EN_US";
+   application="";
+   string="Related Objects";
+  END_FIELDS
+END_OBJECT NAME="15652_EN_US"
+
+OBJECT TYPE = "fc_string", NAME="15653_EN_US"
+  UNIQUE_FIELD = id, locale, application
+  FIELDS
+   id=15653;
+   locale="EN_US";
+   application="";
+   string="Add";
+  END_FIELDS
+END_OBJECT NAME="15653_EN_US"
+
+OBJECT TYPE = "fc_string", NAME="15654_EN_US"
+  UNIQUE_FIELD = id, locale, application
+  FIELDS
+   id=15654;
+   locale="EN_US";
+   application="";
+   string="Replace";
+  END_FIELDS
+END_OBJECT NAME="15654_EN_US"
+
+OBJECT TYPE = "fc_string", NAME="15655_EN_US"
+  UNIQUE_FIELD = id, locale, application
+  FIELDS
+   id=15655;
+   locale="EN_US";
+   application="";
+   string="Done";
+  END_FIELDS
+END_OBJECT NAME="15655_EN_US"
+
+/* Painting strings for form 2803 */
+
+OBJECT TYPE = "fc_string", NAME="15660_EN_US"
+  UNIQUE_FIELD = id, locale, application
+  FIELDS
+   id=15660;
+   locale="EN_US";
+   application="";
+   string="Title:";
+  END_FIELDS
+END_OBJECT NAME="15660_EN_US"
+
+OBJECT TYPE = "fc_string", NAME="15661_EN_US"
+  UNIQUE_FIELD = id, locale, application
+  FIELDS
+   id=15661;
+   locale="EN_US";
+   application="";
+   string="Start Date:";
+  END_FIELDS
+END_OBJECT NAME="15661_EN_US"
+
+OBJECT TYPE = "fc_string", NAME="15662_EN_US"
+  UNIQUE_FIELD = id, locale, application
+  FIELDS
+   id=15662;
+   locale="EN_US";
+   application="";
+   string="End Date:";
+  END_FIELDS
+END_OBJECT NAME="15662_EN_US"
+
+OBJECT TYPE = "fc_string", NAME="15663_EN_US"
+  UNIQUE_FIELD = id, locale, application
+  FIELDS
+   id=15663;
+   locale="EN_US";
+   application="";
+   string="Urgent?";
+  END_FIELDS
+END_OBJECT NAME="15663_EN_US"
+
+OBJECT TYPE = "fc_string", NAME="15664_EN_US"
+  UNIQUE_FIELD = id, locale, application
+  FIELDS
+   id=15664;
+   locale="EN_US";
+   application="";
+   string="Active?";
+  END_FIELDS
+END_OBJECT NAME="15664_EN_US"
+
+OBJECT TYPE = "fc_string", NAME="15665_EN_US"
+  UNIQUE_FIELD = id, locale, application
+  FIELDS
+   id=15665;
+   locale="EN_US";
+   application="";
+   string="Clear";
+  END_FIELDS
+END_OBJECT NAME="15665_EN_US"
+
+/* Painting strings for form 2804 */
+
+OBJECT TYPE = "fc_string", NAME="15670_EN_US"
+  UNIQUE_FIELD = id, locale, application
+  FIELDS
+   id=15670;
+   locale="EN_US";
+   application="";
+   string="Query for:";
+  END_FIELDS
+END_OBJECT NAME="15670_EN_US"
+
+OBJECT TYPE = "fc_string", NAME="15671_EN_US"
+  UNIQUE_FIELD = id, locale, application
+  FIELDS
+   id=15671;
+   locale="EN_US";
+   application="";
+   string="List";
+  END_FIELDS
+END_OBJECT NAME="15671_EN_US"
+
+/* Messages for form 2800. */
+
+OBJECT TYPE = "fc_string", NAME="15700_EN_US"
+  UNIQUE_FIELD = id, locale, application
+  FIELDS
+   id=15700;
+   locale="EN_US";
+   application="";
+   string="Please make sure to enter both the label and the column";
+  END_FIELDS
+END_OBJECT NAME="15700_EN_US"
+
+OBJECT TYPE = "fc_string", NAME="15701_EN_US"
+  UNIQUE_FIELD = id, locale, application
+  FIELDS
+   id=15701;
+   locale="EN_US";
+   application="";
+   string="You must enter at least one query column";
+  END_FIELDS
+END_OBJECT NAME="15701_EN_US"
+
+OBJECT TYPE = "fc_string", NAME="15702_EN_US"
+  UNIQUE_FIELD = id, locale, application
+  FIELDS
+   id=15702;
+   locale="EN_US";
+   application="";
+   string="You must enter at least one output column";
+  END_FIELDS
+END_OBJECT NAME="15702_EN_US"
+
+OBJECT TYPE = "fc_string", NAME="15703_EN_US"
+  UNIQUE_FIELD = id, locale, application
+  FIELDS
+   id=15703;
+   locale="EN_US";
+   application="";
+   string="You must enter both the label and output column";
+  END_FIELDS
+END_OBJECT NAME="15703_EN_US"
+
+OBJECT TYPE = "fc_string", NAME="15704_EN_US"
+  UNIQUE_FIELD = id, locale, application
+  FIELDS
+   id=15704;
+   locale="EN_US";
+   application="";
+   string="There already is another flash object with the same alias name. Please select another";
+  END_FIELDS
+END_OBJECT NAME="15704_EN_US"
+
+OBJECT TYPE = "fc_string", NAME="15705_EN_US"
+  UNIQUE_FIELD = id, locale, application
+  FIELDS
+   id=15705;
+   locale="EN_US";
+   application="";
+   string="You must specify the objid field of the view";
+  END_FIELDS
+END_OBJECT NAME="15705_EN_US"
+
+OBJECT TYPE = "fc_string", NAME="15706_EN_US"
+  UNIQUE_FIELD = id, locale, application
+  FIELDS
+   id=15706;
+   locale="EN_US";
+   application="";
+   string="You may not delete this object type. There is at least one flash defined for it. Please delete the flashes first, then the object";
+  END_FIELDS
+END_OBJECT NAME="15706_EN_US"
+
+/* Messages for form 2801. */
+
+OBJECT TYPE = "fc_string", NAME="15715_EN_US"
+  UNIQUE_FIELD = id, locale, application
+  FIELDS
+   id=15715;
+   locale="EN_US";
+   application="";
+   string="Are you sure you really want to delete the selected flash?";
+  END_FIELDS
+END_OBJECT NAME="15715_EN_US"
+
+OBJECT TYPE = "fc_string", NAME="15716_EN_US"
+  UNIQUE_FIELD = id, locale, application
+  FIELDS
+   id=15716;
+   locale="EN_US";
+   application="";
+   string="You must fill in at least one filter for a table query";
+  END_FIELDS
+END_OBJECT NAME="15716_EN_US"
+
+/* Messages for form 2802. */
+
+OBJECT TYPE = "fc_string", NAME="15725_EN_US"
+  UNIQUE_FIELD = id, locale, application
+  FIELDS
+   id=15725;
+   locale="EN_US";
+   application="";
+   string="Data has been modified. Do you want to save?";
+  END_FIELDS
+END_OBJECT NAME="15725_EN_US"
+
+OBJECT TYPE = "fc_string", NAME="15726_EN_US"
+  UNIQUE_FIELD = id, locale, application
+  FIELDS
+   id=15726;
+   locale="EN_US";
+   application="";
+   string="You must supply a title for the flash";
+  END_FIELDS
+END_OBJECT NAME="15726_EN_US"
+
+OBJECT TYPE = "fc_string", NAME="15727_EN_US"
+  UNIQUE_FIELD = id, locale, application
+  FIELDS
+   id=15727;
+   locale="EN_US";
+   application="";
+   string="You must supply a valid start date";
+  END_FIELDS
+END_OBJECT NAME="15727_EN_US"
+
+OBJECT TYPE = "fc_string", NAME="15728_EN_US"
+  UNIQUE_FIELD = id, locale, application
+  FIELDS
+   id=15728;
+   locale="EN_US";
+   application="";
+   string="You must supply a valid end date";
+  END_FIELDS
+END_OBJECT NAME="15728_EN_US"
+
+OBJECT TYPE = "fc_string", NAME="15729_EN_US"
+  UNIQUE_FIELD = id, locale, application
+  FIELDS
+   id=15729;
+   locale="EN_US";
+   application="";
+   string="The start date must be earlier than the end date";
+  END_FIELDS
+END_OBJECT NAME="15729_EN_US"

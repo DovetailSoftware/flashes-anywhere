@@ -1,0 +1,588 @@
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' Product        :  Flashes Anywhere(tm)
+'
+' Series         :  First Choice Workflow Series(tm)
+'
+' Name           :  Select Flashes form
+'
+' Description    :  Displays form for selecting flashes
+'
+' Author          : First Choice Software, Inc.
+'                   4412 Spicewood Springs Road
+'                   Suite 701
+'                   Austin, TX  78759
+'                   (512) 418-2905
+'                   EMAIL: support@fchoice.com
+'                   www.fchoice.com
+'
+' Platforms       : This version supports Clarify 4.5 and later
+'
+' Copyright (C)  2000 First Choice Software, Inc.
+' All Rights Reserved.
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+                                        
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' Functional Declarations
+'
+' Copyright (C) 2000. First Choice Software. All Rights Reserved.
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+OPTION EXPLICIT
+
+
+Dim tbl_list As List                    ' List of tables/views that can have
+                                        '  flashes
+Dim tbl_rec  As Record                  ' Current table record selected from DDL
+
+                                        ' Functional prototype declarations
+Declare Public Sub clear_items(items_to_show As Integer)
+
+Declare Public Sub get_strings(start_val As Long, num_strings As Integer, _
+                   locale As String, application As String, ret_strings As List)
+Declare Function msg_box(the_text As String, the_caption As String, the_type As Integer) _
+                         As Integer
+Declare Public Function get_sprintf(str_num As Long, locale As String, application As String, _
+                     Optional arg1 As Variant, Optional arg2 As Variant, _
+                     Optional arg3 As Variant, Optional arg4 As Variant, _
+                     Optional arg5 As Variant, Optional arg6 As Variant) _
+                     As String
+Declare Public Function get_table_number(tbl_rec As Record) As Integer 
+Declare Public Function get_tbl_num_for_vf(view_num As Integer, view_fld As String) As Long
+Declare Public Function get_table_num_string(tbl_name As String) As Integer
+
+Dim transfer_obj  As Long               ' Obj num of single object to show
+Dim transfer_list As List               ' List of one objid when this form is called
+                                        '  with respect to one and only one object
+                                        '  (flash button)
+
+                                        ' Global variables
+Global locale As String                 ' Locale of user
+Global gSchemaRev as Integer            ' Schema Revision
+Global gIsOracle as Boolean             ' Is this an Oracle database?
+
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' Constants
+'
+' Copyright (C) 2000. First Choice Software. All Rights Reserved.
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+Const MSG_FL_DIRTY        = cbFirstMessage + 1
+Const MSG_FL_FOCUS_TITLE  = cbFirstMessage + 2
+Const MSG_FL_SHOW         = cbFirstMessage + 3
+Const MSG_FL_FOCUS_START  = cbFirstMessage + 4
+Const MSG_FL_FOCUS_END    = cbFirstMessage + 5
+Const MSG_FL_SEL_LIST     = cbFirstMessage + 6
+Const MSG_FL_SEL_ONE      = cbFirstMessage + 7
+
+
+
+
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' Form Load Method
+'
+' Copyright (C) 2000. First Choice Software. All Rights Reserved.
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+Sub Form_Load()
+  Dim ret_strings As New List           ' Strings to place on controls
+  Dim t_ret    As New BulkRetrieve      ' Structure to query the DB
+  Dim tbl_rec  As Record                ' Each alert_table
+  Dim str_list As New List              ' List of aliases
+  Dim t_int    As Integer               ' Looping integer
+  Dim new_rec  As New Record            ' Empty record for current object
+  
+                                        ' Do default action
+  Me.DoDefault
+
+                                        ' Set up the transfer object
+  transfer_obj = -1
+  
+                                        ' Put in empty record in Cobj
+  new_rec.RecordType = "alert"
+  Cobj_CUR_OBJ.Fill new_rec
+  
+                                        ' Assume they can choose "no table"
+                                        ' Get all of the tables/views with flashes
+                                        '  Order the list
+  str_list.ItemType = "string"
+  str_list.AppendItem ""
+  t_ret.SimpleQuery 0, "alert_table"
+  t_ret.AppendSort 0, "alias_name", cbAscending
+  t_ret.RetrieveRecords
+  
+                                        ' Get the list. For each one...
+                                        '  Get the record. Add the alias to
+                                        '   the list
+                                        ' Put list in dropdown list box
+  Set tbl_list = t_ret.GetRecordList(0)
+  For t_int = 0 To tbl_list.Count - 1
+    Set tbl_rec = tbl_list.ItemByIndex(t_int)
+    str_list.AppendItem tbl_rec.GetField("alias_name")
+  Next t_int
+  Cobj_TABLE_LIST.Fill str_list
+  
+                                        ' Get strings for controls, place them
+  get_strings 15610, 10, locale, "", ret_strings
+  Me.Caption = ret_strings.ItemByIndex(0)
+  LBL_TITLE.Caption = ret_strings.ItemByIndex(1)
+  LBL_QRY_FOR.Caption = ret_strings.ItemByIndex(2)
+  CHK_URGENT.Caption = ret_strings.ItemByIndex(3)
+  CHK_ACTIVE.Caption = ret_strings.ItemByIndex(4)
+  BTN_LIST.Caption = ret_strings.ItemByIndex(5)
+  BTN_NEW.Caption = ret_strings.ItemByIndex(6)
+  BTN_OPEN.Caption = ret_strings.ItemByIndex(7)
+  BTN_DELETE.Caption = ret_strings.ItemByIndex(8)
+  Ctl_CLOSE.Caption = ret_strings.ItemByIndex(9)
+
+                                        ' Set initial control settings
+  BTN_OPEN.Enabled = False
+  BTN_DELETE.Enabled = False
+  clear_items 0
+
+                                       ' If this is an oracle database, and 
+                                       ' less than clarify version 12 
+                                       ' (CLARIFY_12=rev 59)
+                                       ' Then the alert_text is a long, so 
+                                       ' we can't filter on it (Oracle 
+                                       ' limitation)
+                                       ' So, hide the text field, 
+                                       ' and change the label
+  If gSchemaRev < 59 And gIsOracle = True Then
+     TXT_TEXT.Visible = False
+     LBL_TITLE.Caption = "Title:"
+  End If
+
+
+End Sub
+
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' Clear Items for Querying
+'
+' Copyright (C) 2000. First Choice Software. All Rights Reserved.
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+Public Sub clear_items(items_to_show As Integer)
+  LBL_5.Visible = items_to_show >= 5
+  TXT_5.Visible = items_to_show >= 5
+  LBL_4.Visible = items_to_show >= 4
+  TXT_4.Visible = items_to_show >= 4
+  LBL_3.Visible = items_to_show >= 3
+  TXT_3.Visible = items_to_show >= 3
+  LBL_2.Visible = items_to_show >= 2
+  TXT_2.Visible = items_to_show >= 2
+  LBL_1.Visible = items_to_show >= 1
+  TXT_1.Visible = items_to_show >= 1
+End Sub
+
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' Dropdown List Click Method
+'
+' Copyright (C) 2000. First Choice Software. All Rights Reserved.
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+Public Sub DDL_TABLE_Click()
+  Dim sel_list As List                  ' List of selected indexes
+  Dim cur_item As Integer               ' Item selected from list
+  Dim num_qry  As Integer               ' Number of query columns
+  
+                                        ' Get item selected from the list
+  Set sel_list = DDL_TABLE.SelectedIndexes
+  cur_item = sel_list.ItemByIndex(0)
+  
+  If cur_item = 0 Then
+     clear_items 0
+  Else
+    Set tbl_rec = tbl_list.ItemByIndex(cur_item - 1)
+    num_qry = tbl_rec.GetField("num_query_cols")
+    clear_items num_qry
+    LBL_1.Caption = tbl_rec.GetField("lbl1")
+    TXT_1.Text = ""
+    If num_qry >= 2 Then 
+       LBL_2.Caption = tbl_rec.GetField("lbl2")
+       TXT_2.Text = ""
+    End If
+    If num_qry >= 3 Then 
+       LBL_3.Caption = tbl_rec.GetField("lbl3")
+       TXT_3.Text = ""
+    End If
+    If num_qry >= 4 Then 
+       LBL_4.Caption = tbl_rec.GetField("lbl4")
+       TXT_4.Text = ""
+    End If
+    If num_qry >= 5 Then 
+       LBL_5.Caption = tbl_rec.GetField("lbl5")
+       TXT_5.Text = ""
+    End If
+  End If
+
+End Sub
+
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' Done Button Click Method
+'
+' Copyright (C) 2000. First Choice Software. All Rights Reserved.
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+Public Sub CLOSE_Click()
+  Me.Close
+End Sub
+
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' Flash Grid Click/Double Click Method
+'
+' Copyright (C) 2000. First Choice Software. All Rights Reserved.
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+Public Sub CLB_ALERT_Click()
+  BTN_OPEN.Enabled = True
+  BTN_DELETE.Enabled = True
+End Sub
+
+Public Sub CLB_ALERT_DblClick()
+  BTN_OPEN.Value = True
+End Sub
+
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' Open Button Click Method
+'
+' Copyright (C) 2000. First Choice Software. All Rights Reserved.
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+Public Sub BTN_OPEN_Click()
+  Dim new_form As New Form              ' Form to display
+  Dim sel_rec  As Record                ' Selected flash record
+  
+  Set sel_rec = CLB_ALERT.Selected
+  new_form.Show 2802, 0
+  new_form.Notify MSG_FL_SHOW, Trim$(Str$(sel_rec.GetField("objid")))
+End Sub
+
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' New Button Click Method
+'
+' Copyright (C) 2000. First Choice Software. All Rights Reserved.
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+Public Sub BTN_NEW_Click()
+  Dim new_form As New Form              ' Form to display
+  
+  new_form.Show 2802, 0
+End Sub
+
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' List Button Click Method
+'
+' Copyright (C) 2000. First Choice Software. All Rights Reserved.
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+Public Sub BTN_LIST_Click()
+  Dim t_ret    As New BulkRetrieve      ' Structure to query the DB
+  Dim t_list   As List                  ' List returned from query
+  Dim obj_list As New List              ' List of objids found
+  Dim t_int    As Integer               ' Looping integer
+  Dim itm_rec  As Record                ' Each item record
+  Dim delta    As Integer               ' Delta on bulk retrieve
+  Dim tbl_num  As Long                  ' Table/Objid column table number
+  Dim one_vis  As Boolean               ' Is at least one column visible and filled in?
+  Dim has_data As Boolean               ' At least one column has data
+  Dim end_list As New List              ' End list for grid
+  Dim al_rec   As Record                ' Each alert record
+  Dim ret_int  As Integer               ' Return integer from msg_box
+  Dim bIsString1 As Boolean				
+  Dim bIsString2 As Boolean
+  Dim bIsString3 As Boolean
+  Dim bIsString4 As Boolean
+  Dim bIsString5 As Boolean
+  Dim temp_record As New record
+           
+                                        ' Assume no other selection data
+                                        
+  one_vis = False  
+  has_data = False
+  
+                                        ' If we are calling this because one form pressed a
+                                        '  "Flash" button, set the variables for the query
+                                        '  and skip to the proper query section. Make sure
+                                        '  to clear "transfer_obj" so that other presses of
+                                        '  the "List" button do the normal processing
+  If transfer_obj >= 0 Then
+     tbl_num = transfer_obj
+     Set obj_list = transfer_list
+     transfer_obj = -1
+     Goto query_one_obj
+  End If
+  
+                                        ' If there is a table-based search...
+                                        ' Query for the table
+                                        ' For each column, if it's visible, and has data
+                                        '  then add it as a query parameter
+                                        
+  If TXT_1.Visible Then
+     one_vis = True
+     t_ret.SimpleQuery 0, tbl_rec.GetField("table_or_view")
+	                                    ' Set up a record with the same type for checking datatypes later on
+	 temp_record.RecordType = tbl_rec.GetField("table_or_view")
+	 	  
+
+     If TXT_1.Visible Then
+        If TXT_1.Text <> "" Then
+           has_data = True
+                                ' See if this is a string field - assume yes
+		   bIsString1 = True
+		   On Error GoTo err_handler1
+		   temp_record.SetField tbl_rec.GetField("col1"), "foo"	     
+		   GoTo continue1		   
+           err_handler1:
+		   bIsString1 = False
+           continue1:
+		   On Error GoTo 0	
+                                ' If this is a string field, use a cbLike, else, use a cbEqual operator
+		   If bIsString1 Then
+              t_ret.AppendFilter 0, tbl_rec.GetField("col1"), cbLike, TXT_1.Text  & "%"
+   		   Else
+              t_ret.AppendFilter 0, tbl_rec.GetField("col1"), cbEqual, TXT_1.Text
+		   End If
+		   
+        End If
+     End If
+     If TXT_2.Visible Then
+        one_vis = True
+        If TXT_2.Text <> "" Then
+           has_data = True
+                                ' See if this is a string field - assume yes
+		   bIsString2 = True
+		   On Error GoTo err_handler2
+		   temp_record.SetField tbl_rec.GetField("col2"), "foo"	     
+		   GoTo continue2		   
+           err_handler2:
+		   bIsString2 = False
+           continue2:
+		   On Error GoTo 0	
+                                ' If this is a string field, use a cbLike, else, use a cbEqual operator
+		   If bIsString2 Then
+              t_ret.AppendFilter 0, tbl_rec.GetField("col2"), cbLike, TXT_2.Text  & "%"
+   		   Else
+              t_ret.AppendFilter 0, tbl_rec.GetField("col2"), cbEqual, TXT_2.Text
+		   End If
+        End If
+     End If
+     If TXT_3.Visible Then
+        one_vis = True
+        If TXT_3.Text <> "" Then
+           has_data = True
+
+                                ' See if this is a string field - assume yes
+		   bIsString3 = True
+		   On Error GoTo err_handler3
+		   temp_record.SetField tbl_rec.GetField("col3"), "foo"	     
+		   GoTo continue3		   
+           err_handler3:
+		   bIsString3 = False
+           continue3:
+		   On Error GoTo 0	
+                                ' If this is a string field, use a cbLike, else, use a cbEqual operator
+		   If bIsString3 Then
+              t_ret.AppendFilter 0, tbl_rec.GetField("col3"), cbLike, TXT_3.Text  & "%"
+   		   Else
+              t_ret.AppendFilter 0, tbl_rec.GetField("col3"), cbEqual, TXT_3.Text
+		   End If
+
+        End If
+     End If
+     If TXT_4.Visible Then
+        one_vis = True
+        If TXT_4.Text <> "" Then
+           has_data = True
+                                ' See if this is a string field - assume yes
+		   bIsString4 = True
+		   On Error GoTo err_handler4
+		   temp_record.SetField tbl_rec.GetField("col4"), "foo"	     
+		   GoTo continue4		   
+           err_handler4:
+		   bIsString4 = False
+           continue4:
+		   On Error GoTo 0	
+                                ' If this is a string field, use a cbLike, else, use a cbEqual operator
+		   If bIsString4 Then
+              t_ret.AppendFilter 0, tbl_rec.GetField("col4"), cbLike, TXT_4.Text  & "%"
+   		   Else
+              t_ret.AppendFilter 0, tbl_rec.GetField("col4"), cbEqual, TXT_4.Text
+		   End If
+        End If
+     End If
+     If TXT_5.Visible Then
+        one_vis = True
+        If TXT_5.Text <> "" Then
+           has_data = True
+                                ' See if this is a string field - assume yes
+		   bIsString5 = True
+		   On Error GoTo err_handler5
+		   temp_record.SetField tbl_rec.GetField("col5"), "foo"	     
+		   GoTo continue5		   
+           err_handler5:
+		   bIsString5 = False
+           continue5:
+		   On Error GoTo 0	
+                                ' If this is a string field, use a cbLike, else, use a cbEqual operator
+		   If bIsString5 Then
+              t_ret.AppendFilter 0, tbl_rec.GetField("col5"), cbLike, TXT_5.Text  & "%"
+   		   Else
+              t_ret.AppendFilter 0, tbl_rec.GetField("col5"), cbEqual, TXT_5.Text
+		   End If
+        End If
+     End If
+
+                                        ' We want to make sure that they don't do a stupid query
+     If one_vis = True and has_data = False Then
+        ret_int = msg_box(get_sprintf(15716, locale, ""), get_sprintf(15600, locale, ""), 0)  
+        Exit Sub
+     End If
+     
+                                        ' Get the record list
+     t_ret.RetrieveRecords
+     Set t_list = t_ret.GetRecordList(0)
+
+                                        ' Get all of the objids
+     obj_list.ItemType = "Long"
+     obj_list.AppendItem -9
+     For t_int = 0 To t_list.Count - 1
+       Set itm_rec = t_list.ItemByIndex(t_int)
+       obj_list.AppendItem itm_rec.GetField("objid")
+     Next t_int   
+
+                                        ' Get the table number (for table or view) 
+     tbl_num = get_table_number(tbl_rec)
+
+                                        ' Get the alert_to_other records
+                                        ' Apply other filters as needed
+query_one_obj:
+     t_ret.Clear
+     t_ret.SimpleQuery 0, "alert_to_other"
+     t_ret.AppendFilter 0, "obj_id", cbIn, obj_list
+     t_ret.AppendFilter 0, "obj_num", cbEqual, tbl_num
+     t_ret.TraverseFromParent 1, "to_other2alert", 0
+     delta = 1
+     Goto filter_alert
+  Else
+                                        ' Otherwise, we're just want to query the alert table
+                                        '  directly
+     t_ret.SimpleQuery 0, "alert"
+     delta = 0
+
+                                        ' Check filters on the alert record itself
+                                        ' Do the query and get the results
+filter_alert:
+     If TXT_TITLE.Text <> "" Then
+        t_ret.AppendFilter delta, "title", cbLike, TXT_TITLE.Text & "%"
+     End If
+     If TXT_TEXT.Text <> "" Then
+        t_ret.AppendFilter delta, "alert_text", cbLike, TXT_TEXT.Text & "%"
+     End If
+     If CHK_URGENT.Value Then
+        t_ret.AppendFilter delta, "hot", cbEqual, 1
+     End If
+     If CHK_ACTIVE.Value = False Then
+        t_ret.AppendFilter delta, "x_active", cbEqual, 1
+     End If
+     t_ret.RetrieveRecords
+     Set t_list = t_ret.GetRecordList(delta)
+     
+                                        ' We have to copy the records into a new list
+                                        '  that doesn't allow duplicates, because the query
+                                        '  may return the same alert multiple times and Clarify
+                                        '  does not have a "select distinct" construct.
+     end_list.ItemType = "Record"
+     end_list.AllowDuplicates = False
+     For t_int = 0 To t_list.Count - 1
+       Set al_rec = t_list.ItemByIndex(t_int)
+       end_list.AppendItem al_rec
+     Next t_int
+  End If
+  
+                                        ' Fill the results list into the grid
+                                        ' Turn on/off controls as needed
+  Cobj_LOR_ALERT.Fill end_list
+  CLB_ALERT.UnSelect
+  BTN_OPEN.Enabled = False
+  BTN_DELETE.Enabled = False
+End Sub
+
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' Delete Button Click Method
+'
+' Copyright (C) 2000. First Choice Software. All Rights Reserved.
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+Public Sub BTN_DELETE_Click()
+  Dim ret_int As Integer                ' Return integer from message box
+  Dim sel_rec As Record                 ' Selected record
+  Dim t_ret   As New BulkRetrieve       ' Structure to query the DB
+  Dim t_save  As New BulkSave           ' Structure to write to the DB
+  Dim t_list  As List                   ' List returned from query
+  Dim t_rec   As Record                 ' Each record to delete
+  Dim t_int   As Integer                ' Looping integer
+    
+                                        ' Find out if they're sure
+                                        ' If so...
+                                        '  Get the flash and related alert_to_others
+                                        '  Delete them
+  ret_int = msg_box(get_sprintf(15715, locale, ""), get_sprintf(15600, locale, ""), 4)
+  If ret_int = 2 Then
+     Set sel_rec = CLB_ALERT.Selected
+     t_ret.SetRoot sel_rec
+     t_ret.TraverseFromRoot 0, "alert2alert_to_other"
+     t_ret.RetrieveRecords
+
+     t_save.DeleteRecord sel_rec
+     Set t_list = t_ret.GetRecordList(0)
+     For t_int = 0 To t_list.Count - 1
+       Set t_rec = t_list.ItemByIndex(t_int)
+       t_save.DeleteRecord t_rec
+     Next t_int     
+     t_save.Save
+     
+                                        ' Press the list button to reset grid
+     BTN_LIST.Value = True
+  End If
+End Sub
+
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' Show Flashes For One Object
+'
+' Copyright (C) 2000. First Choice Software. All Rights Reserved.
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+Public Sub show_flashes_for_one_obj(info As String)
+  Dim obj_id     As Long                ' Object ID of the object
+  
+                                        ' Get the table number and objid
+  transfer_obj = get_table_num_string(Item$(info, 1, 1, "|"))
+  obj_id = CLng(Item$(info, 2, 2, "|"))
+  
+                                        ' Build the list and add the one objid
+                                        '  of the object
+                                        ' Press the list button
+  Set transfer_list = New List
+  transfer_list.ItemType = "Long"
+  transfer_list.AppendItem obj_id
+  BTN_LIST.Value = True
+End Sub
+
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' Message Handler
+'
+' Copyright (C) 2000. First Choice Software. All Rights Reserved.
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+Public Sub Message(ByVal num As Long, ByVal info As String)
+  Select Case num
+    Case cbCloseMessage
+      Me.Close cbCloseChildren
+    Case MSG_FL_SEL_LIST
+      BTN_LIST.Value = True
+    Case MSG_FL_SEL_ONE
+      show_flashes_for_one_obj info
+    Case Else
+      Me.DoDefault
+  End Select
+End Sub

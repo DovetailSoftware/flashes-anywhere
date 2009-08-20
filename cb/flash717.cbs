@@ -1,0 +1,74 @@
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' Product        :  Flashes Anywhere(tm)
+'
+' Series         :  First Choice Workflow Series(tm)
+'
+' Name           :  Sample Usage of FA - Site Form
+'
+' Description    :  Flash Button Modified to use FA
+'
+' Author          : First Choice Software, Inc.
+'                   4412 Spicewood Springs Road
+'                   Suite 701
+'                   Austin, TX  78759
+'                   (512) 418-2905
+'                   EMAIL: support@fchoice.com
+'                   www.fchoice.com
+'
+' Platforms       : This version supports Clarify 4.5 and later
+'
+' Copyright (C)  2000 First Choice Software, Inc.
+' All Rights Reserved.
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' Functional Declarations
+'
+' Copyright (C) 2000. First Choice Software. All Rights Reserved.
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+OPTION EXPLICIT
+
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' Constants
+'
+' Copyright (C) 2000. First Choice Software. All Rights Reserved.
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+Const MSG_FL_DIRTY        = cbFirstMessage + 1
+Const MSG_FL_FOCUS_TITLE  = cbFirstMessage + 2
+Const MSG_FL_SHOW         = cbFirstMessage + 3
+Const MSG_FL_FOCUS_START  = cbFirstMessage + 4
+Const MSG_FL_FOCUS_END    = cbFirstMessage + 5
+Const MSG_FL_SEL_LIST     = cbFirstMessage + 6
+Const MSG_FL_SEL_ONE      = cbFirstMessage + 7
+
+Const SEL_FLASH_FORM = 2801
+
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' Form Load Method
+'
+' Copyright (C) 2000. First Choice Software. All Rights Reserved.
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+Public Sub Form_Load()
+  Me.DoDefault
+End Sub
+
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' Flash Button
+'
+' Copyright (C) 2000. First Choice Software. All Rights Reserved.
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+Public Sub alertButton_Click()
+  Dim sel_flash As New Form             ' Invocation of select flash form
+  Dim site_rec  As Record               ' Site record
+  
+                                        ' Get the site record
+                                        ' Show the form
+                                        ' Show flashes for the site
+  Set site_rec = Cobj_LOCATION.Contents
+  sel_flash.Show SEL_FLASH_FORM, cbFrontIfUp
+  sel_flash.Notify MSG_FL_SEL_ONE, "site|" & Trim$(Str$(site_rec.GetField("objid")))
+End Sub

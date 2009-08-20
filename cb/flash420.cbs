@@ -1,0 +1,116 @@
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' Product        :  Flashes Anywhere(tm)
+'
+' Series         :  First Choice Workflow Series(tm)
+'
+' Name           :  Sample Usage of FA - Case Edit Form
+'
+' Description    :  Displays flashes for contact/site/part for an existing case
+'
+' Author          : First Choice Software, Inc.
+'                   4412 Spicewood Springs Road
+'                   Suite 701
+'                   Austin, TX  78759
+'                   (512) 418-2905
+'                   EMAIL: support@fchoice.com
+'                   www.fchoice.com
+'
+' Platforms       : This version supports Clarify 4.5 and later
+'
+' Copyright (C)  2000 First Choice Software, Inc.
+' All Rights Reserved.
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' Functional Declarations
+'
+' Copyright (C) 2000. First Choice Software. All Rights Reserved.
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+OPTION EXPLICIT
+
+Declare Public Function get_flashes(obj_name1 As String, obj_id1 As Long, _
+                            obj_name2 As String, obj_id2 As Long, _
+                            obj_name3 As String, obj_id3 As Long, _
+                            obj_name4 As String, obj_id4 As Long, _
+                            obj_name5 As String, obj_id5 As Long, _
+                            ret_list As List) As Integer
+Declare Public Sub get_flashes_and_display()
+
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' Form Load Method
+'
+' Copyright (C) 2000. First Choice Software. All Rights Reserved.
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+Public Sub Form_Load()
+  Me.DoDefault
+  get_flashes_and_display
+End Sub
+
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' Get Flashes and Display Them on the Grid
+'
+' Copyright (C) 2000. First Choice Software. All Rights Reserved.
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+Public Sub get_flashes_and_display()
+  Dim cv_rec    As Record               ' Rol_contct view record we found
+  Dim part_rec  As Record               ' Part Number record
+  Dim ret_int   As Integer              ' Return integer from flashes call
+  Dim ret_list  As List                 ' List of flashes
+  Dim pn_objid  As Long                 ' Objid of part number (if any)
+  Dim part_type As String               ' Part_num record type
+  
+                                        ' Get the contact_view record
+  Set cv_rec = Cobj_CONTACT_VIEW.Contents
+  
+                                        ' Assume no part number
+                                        ' Get the part number. If defined, use it.
+  pn_objid = 0
+  part_type = ""
+  Set part_rec = Cobj_ENT_PART_CATALOG_OBJ.Contents
+  If part_rec Is Not Nothing Then
+     If part_rec.GetField("partnum_objid") <> 0 Then
+        pn_objid = part_rec.GetField("partnum_objid")
+        part_type = "part_num"
+     End If
+  End If
+
+                                        ' Get the flashes  
+  ret_int = get_flashes("site", cv_rec.GetField("loc_objid"), "contact", _
+                        cv_rec.GetField("con_objid"), part_type, pn_objid, "", 0, "", 0, _
+                        ret_list)
+
+                                        ' If there was an error, report it
+                                        ' Else, put it in the grid. If there are any,
+                                        '  then front the tab
+  If ret_int <> 0 Then
+     App.MsgBox "Return error is: " & Trim$(Str$(ret_int))
+  Else
+     If ret_list.Count > 0 Then
+        Cobj_LOR_FLASH.Fill ret_list
+     End If
+  End If
+End Sub
+
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' Message Handler
+'
+' Copyright (C) 2000. First Choice Software. All Rights Reserved.
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+Public Sub Message(ByVal num As Long, ByVal info As String)
+                                        ' Handle default messages. If we get a 551
+                                        ' (find caller complete), display flashes if
+                                        '  proper. Same for 569/508 (selected part)
+  Select Case num
+    Case cbCloseMessage
+      Me.Close cbCloseChildren
+    Case 551, 508, 569
+      Me.DoDefault
+      get_flashes_and_display
+    Case Else
+      Me.DoDefault
+  End Select
+End Sub

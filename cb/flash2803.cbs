@@ -1,0 +1,225 @@
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' Product        :  Flashes Anywhere(tm)
+'
+' Series         :  First Choice Workflow Series(tm)
+'
+' Name           :  Flash form - Primary tab
+'
+' Description    :  Displays form for adding/editing flashes
+'
+' Author          : First Choice Software, Inc.
+'                   4412 Spicewood Springs Road
+'                   Suite 701
+'                   Austin, TX  78759
+'                   (512) 418-2905
+'                   EMAIL: support@fchoice.com
+'                   www.fchoice.com
+'
+' Platforms       : This version supports Clarify 4.5 and later
+'
+' Copyright (C)  2000 First Choice Software, Inc.
+' All Rights Reserved.
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' Functional Declarations
+'
+' Copyright (C) 2000. First Choice Software. All Rights Reserved.
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+OPTION EXPLICIT
+
+                                        ' Functional prototype declarations
+Declare Public Sub get_strings(start_val As Long, num_strings As Integer, _
+                   locale As String, application As String, ret_strings As List)
+Declare Function msg_box(the_text As String, the_caption As String, the_type As Integer) _
+                         As Integer
+Declare Public Function get_sprintf(str_num As Long, locale As String, application As String, _
+                     Optional arg1 As Variant, Optional arg2 As Variant, _
+                     Optional arg3 As Variant, Optional arg4 As Variant, _
+                     Optional arg5 As Variant, Optional arg6 As Variant) _
+                     As String
+
+                                        ' Global variables
+Global locale As String                 ' Locale of user
+
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' Constants
+'
+' Copyright (C) 2000. First Choice Software. All Rights Reserved.
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+Const MSG_FL_DIRTY        = cbFirstMessage + 1
+Const MSG_FL_FOCUS_TITLE  = cbFirstMessage + 2
+Const MSG_FL_SHOW         = cbFirstMessage + 3
+Const MSG_FL_FOCUS_START  = cbFirstMessage + 4
+Const MSG_FL_FOCUS_END    = cbFirstMessage + 5
+Const MSG_FL_SEL_LIST     = cbFirstMessage + 6
+Const MSG_FL_SEL_ONE      = cbFirstMessage + 7
+
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' Form Load Method
+'
+' Copyright (C) 2000. First Choice Software. All Rights Reserved.
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+Sub Form_Load()
+  Dim ret_strings As New List           ' Strings to place on controls
+
+                                        ' Do default action
+  Me.DoDefault
+
+                                        ' Get strings for controls, place them
+  get_strings 15660, 7, locale, "", ret_strings
+  LBL_TITLE.Caption = ret_strings.ItemByIndex(0)
+  LBL_START.Caption = ret_strings.ItemByIndex(1)
+  LBL_END.Caption = ret_strings.ItemByIndex(2)
+  CHK_URGENT.Caption = ret_strings.ItemByIndex(3)
+  CHK_ACTIVE.Caption = ret_strings.ItemByIndex(4)
+  BTN_START_CLEAR.Caption = ret_strings.ItemByIndex(5)
+  BTN_END_CLEAR.Caption = ret_strings.ItemByIndex(5)
+End Sub
+
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' Start Date Button Click Method
+'
+' Copyright (C) 2000. First Choice Software. All Rights Reserved.
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+Public Sub BTN_START_DT_Click()
+  Dim dt_dlg As New CommonDialog
+  
+  dt_dlg.DateTime = TXT_START.Text
+  dt_dlg.Action = cbCDDateTime
+  If Left$(dt_dlg.datetime, 1) <> "?" Or Left$(dt_dlg.datetime, 1) <> "*" Then
+     TXT_START.Text = dt_dlg.DateTime
+     Me.NotifyParent MSG_FL_DIRTY
+  End If
+End Sub
+
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' Start Clear Button Click Method
+'
+' Copyright (C) 2000. First Choice Software. All Rights Reserved.
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+Public Sub BTN_START_CLEAR_Click()
+  Dim t_rec As Record                   ' Current object record
+  
+                                        ' Get the current record, clear the
+                                        '  date, and put it back
+  TXT_START.Text = ""
+  Set t_rec = Cobj_CUR_OBJ.Contents
+  t_rec.SetField "start_date", ""
+  Cobj_CUR_OBJ.Fill t_rec
+  Me.NotifyParent MSG_FL_DIRTY
+End Sub
+
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' End Date Button Click Method
+'
+' Copyright (C) 2000. First Choice Software. All Rights Reserved.
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+Public Sub BTN_END_DT_Click()
+  Dim dt_dlg As New CommonDialog
+  
+  dt_dlg.DateTime = TXT_END.Text
+  dt_dlg.Action = cbCDDateTime
+  If Left$(dt_dlg.datetime, 1) <> "?" Or Left$(dt_dlg.datetime, 1) <> "*" Then
+     TXT_END.Text = dt_dlg.DateTime
+     Me.NotifyParent MSG_FL_DIRTY
+  End If
+End Sub
+
+
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' End Clear Button Click Method
+'
+' Copyright (C) 2000. First Choice Software. All Rights Reserved.
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+Public Sub BTN_END_CLEAR_Click()
+  Dim t_rec As Record                   ' Current object record
+  
+                                        ' Get the current record, clear the
+                                        '  date, and put it back
+  TXT_END.Text = ""
+  Set t_rec = Cobj_CUR_OBJ.Contents
+  t_rec.SetField "end_date", ""
+  Cobj_CUR_OBJ.Fill t_rec
+  Me.NotifyParent MSG_FL_DIRTY
+End Sub
+
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' Title Box Keypress Method
+'
+' Copyright (C) 2000. First Choice Software. All Rights Reserved.
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+Public Sub TXT_TITLE_KeyPress(the_key As Integer)
+                                        ' Do the action
+                                        ' Make sure dirty bit is set
+  Me.DoDefault
+  Me.NotifyParent MSG_FL_DIRTY
+End Sub
+
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' Text Box Keypress Method
+'
+' Copyright (C) 2000. First Choice Software. All Rights Reserved.
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+Public Sub TXT_Text_KeyPress(the_key As Integer)
+                                        ' Do the action
+                                        ' Make sure dirty bit is set
+  Me.DoDefault
+  Me.NotifyParent MSG_FL_DIRTY
+End Sub
+
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' Active Checkbox Click Method
+'
+' Copyright (C) 2000. First Choice Software. All Rights Reserved.
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+Public Sub CHK_ACTIVE_Click()
+                                        ' Do the action
+                                        ' Make sure dirty bit is set
+  Me.DoDefault
+  Me.NotifyParent MSG_FL_DIRTY
+End Sub
+
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' Active Checkbox Click Method
+'
+' Copyright (C) 2000. First Choice Software. All Rights Reserved.
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+Public Sub CHK_URGENT_Click()
+                                        ' Do the action
+                                        ' Make sure dirty bit is set
+  Me.DoDefault
+  Me.NotifyParent MSG_FL_DIRTY
+End Sub
+
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' Message Handler
+'
+' Copyright (C) 2000. First Choice Software. All Rights Reserved.
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+Public Sub Message(ByVal num As Long, ByVal info As String)
+  Select Case num
+    Case cbCloseMessage
+      Me.Close cbCloseChildren
+    Case MSG_FL_FOCUS_TITLE
+      TXT_TITLE.SetFocus
+    Case MSG_FL_FOCUS_START
+      BTN_START_DT.SetFocus
+    Case MSG_FL_FOCUS_END
+      BTN_END_DT.SetFocus
+    Case Else
+      Me.DoDefault
+  End Select
+End Sub

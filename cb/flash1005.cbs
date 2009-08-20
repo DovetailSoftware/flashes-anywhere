@@ -1,0 +1,74 @@
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' Product        :  Flashes Anywhere(tm)
+'
+' Series         :  First Choice Workflow Series(tm)
+'
+' Name           :  Sample Usage of FA - Flashes Tab for New Case
+'
+' Description    :  Displays flashes for contact/site/part for a new case
+'
+' Author          : First Choice Software, Inc.
+'                   4412 Spicewood Springs Road
+'                   Suite 701
+'                   Austin, TX  78759
+'                   (512) 418-2905
+'                   EMAIL: support@fchoice.com
+'                   www.fchoice.com
+'
+' Platforms       : This version supports Clarify 4.5 and later
+'
+' Copyright (C)  2000 First Choice Software, Inc.
+' All Rights Reserved.
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' Functional Declarations
+'
+' Copyright (C) 2000. First Choice Software. All Rights Reserved.
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+OPTION EXPLICIT
+                            
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' Constants
+'
+' Copyright (C) 2000. First Choice Software. All Rights Reserved.
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+Const MSG_FL_DIRTY        = cbFirstMessage + 1
+Const MSG_FL_FOCUS_TITLE  = cbFirstMessage + 2
+Const MSG_FL_SHOW         = cbFirstMessage + 3
+Const MSG_FL_FOCUS_START  = cbFirstMessage + 4
+Const MSG_FL_FOCUS_END    = cbFirstMessage + 5
+Const MSG_FL_SEL_LIST     = cbFirstMessage + 6
+Const MSG_FL_SEL_ONE      = cbFirstMessage + 7
+
+Const FLASH_FORM          = 2802
+
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' Form Load Method
+'
+' Copyright (C) 2000. First Choice Software. All Rights Reserved.
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+Public Sub Form_Load()
+  Me.DoDefault
+End Sub
+
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' Grid Double Click Method
+'
+' Copyright (C) 2000. First Choice Software. All Rights Reserved.
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+Public Sub CLB_FLASH_DblClick()
+  Dim fl_rec   As Record                ' Selected flash record
+  Dim new_form As New Form              ' Flash form to show
+  
+                                        ' Get the flash record
+                                        ' Show the flash form
+                                        ' Tell it which flash to show
+  Set fl_rec = CLB_FLASH.Selected
+  new_form.Show FLASH_FORM, 0
+  new_form.Notify MSG_FL_SHOW, Trim$(Str$(fl_rec.GetField("objid")))
+End Sub

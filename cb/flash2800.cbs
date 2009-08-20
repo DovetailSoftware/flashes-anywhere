@@ -1,0 +1,577 @@
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' Product        :  Flashes Anywhere(tm)
+'
+' Series         :  First Choice Workflow Series(tm)
+'
+' Name           :  Flashes Administraton form
+'
+' Description    :  Displays form for administering the product
+'
+' Author          : First Choice Software, Inc.
+'                   4412 Spicewood Springs Road
+'                   Suite 701
+'                   Austin, TX  78759
+'                   (512) 418-2905
+'                   EMAIL: support@fchoice.com
+'                   www.fchoice.com
+'
+' Platforms       : This version supports Clarify 4.5 and later
+'
+' Copyright (C)  2000 First Choice Software, Inc.
+' All Rights Reserved.
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' Functional Declarations
+'
+' Copyright (C) 2000. First Choice Software. All Rights Reserved.
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+OPTION EXPLICIT
+
+                                        ' Functional prototype declarations
+Declare Public Sub get_strings(start_val As Long, num_strings As Integer, _
+                   locale As String, application As String, ret_strings As List)
+Declare Function msg_box(the_text As String, the_caption As String, the_type As Integer) _
+                         As Integer
+Declare Public Function get_sprintf(str_num As Long, locale As String, application As String, _
+                     Optional arg1 As Variant, Optional arg2 As Variant, _
+                     Optional arg3 As Variant, Optional arg4 As Variant, _
+                     Optional arg5 As Variant, Optional arg6 As Variant) _
+                     As String
+Declare Public Sub get_objs(get_all_tables As Boolean)
+Declare Public Function is_view(the_name As String) As Boolean
+Declare Public Sub BTN_ADD_Click()
+Declare Public Function is_view(the_name As String) As Boolean
+Declare Public Sub get_fields_in_table(ret_list As List, the_name As String)
+Declare Public Sub get_all_table_names(ret_list As List)
+
+                                        ' Necessary type declarations
+Type long_type
+  ret_long As Long
+End Type
+
+Type string_type
+  ret_string As String * 255
+End Type
+
+                                        ' Global variables
+Global locale As String                 ' Locale of user
+
+                                        ' Messages for this module
+
+Dim clear_grid As Boolean               ' Should we clear the selection in grid?
+Dim num_col As Integer                  ' Number of query columns used
+Dim dont_add   As Integer               ' Used to use the "Add" method for validation
+                                        ' 0=don't add, 1 = replace, but exit with error
+                                        ' 2 = replace is OK.
+Dim rep_objid  As Long                  ' Objid of the row we're replacing
+Dim old_alias  As String                ' Old alias of replaced object
+
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' Form Load Method
+'
+' Copyright (C) 2000. First Choice Software. All Rights Reserved.
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+Sub Form_Load()
+  Dim ret_strings As New List           ' Strings to place on controls
+  
+                                        ' Do default action
+  Me.DoDefault
+  
+  clear_grid = True
+  dont_add = 0
+  rep_objid = 0
+  
+                                        ' Get strings for controls, place them
+                                        ' Cannot set the group boxes - Clarify bug
+                                        ' Cannot set the grid header - Clarify limitation  
+  get_strings 15625, 16, locale, "", ret_strings
+  Me.Caption = ret_strings.ItemByIndex(0)
+  LBL_TABLE_VIEW.Caption = ret_strings.ItemByIndex(1)
+  LBL_ALIAS.Caption = ret_strings.ItemByIndex(2)
+  LBL_OBJID.Caption = ret_strings.ItemByIndex(3)
+  LBL_COL1.Caption = ret_strings.ItemByIndex(4)
+  LBL_COL2.Caption = ret_strings.ItemByIndex(5)
+  LBL_COL3.Caption = ret_strings.ItemByIndex(6)
+  LBL_COL4.Caption = ret_strings.ItemByIndex(7)
+  LBL_COL5.Caption = ret_strings.ItemByIndex(8)
+  LBL_OUT_COL1.Caption = ret_strings.ItemByIndex(9)
+  LBL_OUT_COL2.Caption = ret_strings.ItemByIndex(10)
+  BTN_ADD.Caption = ret_strings.ItemByIndex(11)
+  BTN_REPLACE.Caption = ret_strings.ItemByIndex(12)
+  BTN_DELETE.Caption = ret_strings.ItemByIndex(13)
+  BTN_CLEAR.Caption = ret_strings.ItemByIndex(14)
+  Ctl_CLOSE.Caption = ret_strings.ItemByIndex(15)
+
+                                        ' Get flash objects from the database
+  get_objs True
+End Sub
+
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' Get Database Objects
+'
+' Copyright (C) 2000. First Choice Software. All Rights Reserved.
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+Public Sub get_objs(get_all_tables As Boolean)
+  Dim t_ret    As New BulkRetrieve      ' Structure to query the DB
+  Dim t_list   As List                  ' List returned from query
+  Dim new_obj  As New Record            ' Empty new obj to clear fields
+  Dim ret_list As New List              ' Returned list of objects
+  Dim ret_obj  As string_type           ' Returned object
+  Dim t_int    As Integer               ' Looping integer
+  Dim nm_list  As New List              ' List of table/view names
+  Dim t_str    As String                ' Temp string for trimming
+  
+                                        ' Get all the active tables/views
+                                        ' Put in grid
+  t_ret.SimpleQuery 0, "alert_table"
+  t_ret.AppendSort 0, "alias_name", cbAscending
+  t_ret.RetrieveRecords
+  Set t_list = t_ret.GetRecordList(0)
+  Cobj_LOR_OBJS.Fill t_list
+  
+                                        ' Put an empty object in the current cobj
+  new_obj.RecordType = "alert_table"
+  Cobj_CUR_OBJ.Fill new_obj
+  
+                                        ' Disable buttons, unselect grid as needed
+  BTN_ADD.Enabled = False
+  CLB_OBJS.UnSelect
+  BTN_DELETE.Enabled = False
+  BTN_REPLACE.Enabled = False
+  LBL_OBJID.Visible = False
+  DDL_OBJID.Visible = False
+
+                                        ' If all we're supposed to do is get the current
+                                        '  info for the grid, exit - we're done
+  If get_all_tables = False Then Exit Sub
+  
+                                        ' Build/execute query to get all of the tables/views
+                                        '  Start off with a blank name
+  get_all_table_names ret_list
+  nm_list.ItemType = "String"
+  nm_list.AppendItem ""
+  
+                                        ' Loop through the rest of the records. Build
+                                        '  up string list of names
+  For t_int = 0 To ret_list.Count - 1
+    ret_list.GetItemByIndex t_int, ret_obj
+    t_str = ret_obj.ret_string
+    nm_list.AppendItem Trim$(t_str)
+  Next t_int
+  Cobj_LIST_NAME.Fill nm_list
+End Sub
+
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' Check A Column/DDL For Validity
+'
+' Copyright (C) 2000. First Choice Software. All Rights Reserved.
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+Public Function check_cols(TXT_COL As Control, DDL_COL As Control, num_cols As Integer) As Integer
+  Dim ret_int As Integer                ' Return integer from msg box
+  
+                                        ' If nothing in label or column, that's OK - leave
+  If TXT_COL.Text = "" And DDL_COL.Selected = "" Then 
+     check_cols = 0
+     Exit Function
+  End If
+  
+                                        ' If one or the other, but not both - error/exit
+  If TXT_COL.Text = "" Or DDL_COL.Selected = "" Then
+     ret_int = msg_box(get_sprintf(15700, locale, ""), get_sprintf(15600, locale, ""), 0)  
+     TXT_COL.SetFocus
+     check_cols = -1
+     Exit Function
+  End If  
+
+                                        ' There's one more column
+                                        ' Return "OK"
+  num_cols = num_cols + 1
+  check_cols = 1
+End Function
+
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' Replace Button Click Method
+'
+' Copyright (C) 2000. First Choice Software. All Rights Reserved.
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+Public Sub BTN_REPLACE_Click()
+  Dim sel_rec As Record                 ' Selected record from grid
+  Dim t_save  As New BulkSave           ' Structure to write to the DB
+  Dim t_ret   As New BulkRetrieve       ' Structure to query the DB
+  Dim t_list  As List                   ' List returned from query
+  Dim t_int   As Integer                ' Integer returned from query
+  Dim o_rec   As Record                 ' Each other record
+  
+                                        ' Get the update row
+  Set sel_rec = Cobj_CUR_OBJ.Contents
+
+                                        ' Don't add a column, but we'll use
+                                        '  that routine's error checking
+                                        ' Get the objid of the row we're replacing
+                                        ' Do the check
+                                        ' Clear the replace objid
+  dont_add = 1
+  rep_objid = sel_rec.GetField("objid")
+  BTN_ADD_Click
+  rep_objid = 0
+
+                                        ' If all was OK - write to the DB
+                                        ' Also, if there are any related alert_to_other
+                                        '  records for the old alias, change them to the
+                                        '  new alias
+                                        ' Then, refresh the GUI
+                                        ' Reset the flag so we can add
+  If dont_add = 2 Then
+     t_save.UpdateRecord sel_rec
+     sel_rec.SetField "num_query_cols", num_col
+     
+                                        ' If there is an alias change...
+                                        '  Find any alert_to_others defined on the old
+                                        '   alias. If so, update the record with the new
+                                        '   alias
+     If old_alias <> "" Then
+        t_ret.SimpleQuery 0, "alert_to_other"
+        t_ret.AppendFilter 0, "alias_name", cbEqual, old_alias
+        t_ret.RetrieveRecords
+        
+        Set t_list = t_ret.GetRecordList(0)
+        For t_int = 0 To t_list.Count - 1
+          Set o_rec = t_list.ItemByIndex(t_int)
+          o_rec.SetField "alias_name", sel_rec.GetField("alias_name")
+          t_save.UpdateRecord o_rec
+        Next t_int
+        old_alias = ""
+     End If
+     
+     
+     t_save.Save
+     get_objs False
+  End If
+  dont_add = 0
+End Sub
+
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' Add Button Click Method
+'
+' Copyright (C) 2000. First Choice Software. All Rights Reserved.
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+Public Sub BTN_ADD_Click()
+  Dim t_save  As New BulkSave           ' Structure to write to the DB
+  Dim cur_obj As Record                 ' Current object record
+  Dim ret_int As Integer                ' Return integer
+  Dim t_ret   As New BulkRetrieve       ' Structure to query the DB
+  Dim t_list  As List                   ' List returned from query
+  Dim old_rec As Record                 ' Old alias record
+    
+                                        ' Get current object  
+  Set cur_obj = Cobj_CUR_OBJ.Contents
+  
+                                        ' Check to make sure at least one query col
+                                        ' Set num of cols to 1
+  If TXT_FLD1.Text = "" Or DDL_COL1.Selected = "" Then
+     ret_int = msg_box(get_sprintf(15701, locale, ""), get_sprintf(15600, locale, ""), 0)  
+     TXT_FLD1.SetFocus
+     Exit Sub
+  End If
+  num_col = 1
+
+                                        ' We must have at least one output column
+  If TXT_OUT1.Text = "" Or DDL_OUT1.Selected = "" Then
+     ret_int = msg_box(get_sprintf(15702, locale, ""), get_sprintf(15600, locale, ""), 0)  
+     TXT_OUT1.SetFocus
+     Exit Sub
+  End If
+  
+                                        ' If a partial 2nd output column, error/exit
+  If (TXT_OUT2.Text <> "" And DDL_OUT2.Selected = "") Or _
+     (TXT_OUT2.Text = "" And DDL_OUT2.Selected <> "") Then
+     ret_int = msg_box(get_sprintf(15703, locale, ""), get_sprintf(15600, locale, ""), 0)  
+     TXT_OUT2.SetFocus
+     Exit Sub
+  End If
+  
+                                        ' Make sure that there's no other alias that's the
+                                        '  same. Also, get the old record (replaces only)
+  t_ret.SimpleQuery 0, "alert_table"
+  t_ret.AppendFilter 0, "objid", cbNotEqual, rep_objid
+  t_ret.AppendFilter 0, "alias_name", cbEqual, cur_obj.GetField("alias_name")
+  t_ret.SimpleQuery 1, "alert_table"
+  t_ret.AppendFilter 1, "objid", cbEqual, rep_objid
+  t_ret.RetrieveRecords
+  
+                                        ' If there's another alias, let them know
+  Set t_list = t_ret.GetRecordList(0)
+  If t_list.Count > 0 Then
+     ret_int = msg_box(get_sprintf(15704, locale, ""), get_sprintf(15600, locale, ""), 0)  
+     TXT_ALIAS.SetFocus
+     Exit Sub
+  End If
+  
+                                        ' If this is an update (replace), get the old
+                                        '  record. If the alias has changed, remember that
+  Set t_list = t_ret.GetRecordList(1)
+  old_alias = ""
+  If t_list.Count > 0 Then
+     Set old_rec = t_list.ItemByIndex(0)
+     If old_rec.GetField("alias_name") <> cur_obj.GetField("alias_name") Then
+        old_alias = old_rec.GetField("alias_name")
+     End If
+  End If
+    
+                                        ' Check the other query columns. If there's an 
+                                        '  issue, error/exit
+  ret_int = check_cols(TXT_FLD2, DDL_COL2, num_col)
+  If ret_int < 0 Then Exit Sub
+  If ret_int = 0 Then Goto add_the_object
+
+  ret_int = check_cols(TXT_FLD3, DDL_COL3, num_col)
+  If ret_int < 0 Then Exit Sub
+  If ret_int = 0 Then Goto add_the_object
+
+  ret_int = check_cols(TXT_FLD4, DDL_COL4, num_col)
+  If ret_int < 0 Then Exit Sub
+  If ret_int = 0 Then Goto add_the_object
+
+  ret_int = check_cols(TXT_FLD5, DDL_COL5, num_col)
+  If ret_int < 0 Then Exit Sub
+  If ret_int = 0 Then Goto add_the_object
+
+                                        ' If we need an objid column (view only), make
+                                        '  sure it is supplied. If not, error/exit
+add_the_object:
+  If is_view(DDL_NAME.Selected) Then
+     If DDL_OBJID.Selected = "" Then
+        ret_int = msg_box(get_sprintf(15705, locale, ""), get_sprintf(15600, locale, ""), 0)  
+        DDL_OBJID.SetFocus
+        Exit Sub
+     End If
+  End If
+
+                                        ' If this is from REPLACE, all was OK.
+                                        ' Exit, but set the flag first so they
+                                        '  know they can replace
+  If dont_add = 1 Then
+     dont_add = 2
+     Exit Sub
+  End If
+
+                                        ' Add the record to the DB. Make sure to
+                                        '  set the number of query columns properly
+                                        ' Refresh the GUI
+  t_save.InsertRecord cur_obj
+  cur_obj.SetField "num_query_cols", num_col
+  t_save.Save
+  get_objs False
+End Sub
+
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' Clear Button Click Method
+'
+' Copyright (C) 2000. First Choice Software. All Rights Reserved.
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+Public Sub BTN_CLEAR_Click()
+  Dim emp_rec As New Record             ' Empty record
+  
+                                        ' Put empty record in current Cobj
+                                        ' Disable needed buttons
+                                        ' Turn off the objid column
+                                        ' No items selected in grid
+  emp_rec.RecordType = "alert_table"
+  Cobj_CUR_OBJ.Fill emp_rec
+  Me.DisableControls "BTN_DELETE", "BTN_REPLACE", "BTN_ADD"
+  LBL_OBJID.Visible = False
+  DDL_OBJID.Visible = False
+  CLB_OBJS.UnSelect
+End Sub
+
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' Table/View Dropdown List Click Method
+'
+' Copyright (C) 2000. First Choice Software. All Rights Reserved.
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+Public Sub DDL_NAME_Click()
+  Dim ret_list As New List              ' Returned list of objects
+  Dim fld_list As New List              ' List of field names
+  Dim t_int    As Integer               ' Looping integer
+  Dim ret_obj  As string_type           ' Returned object
+  Dim t_str    As String                ' Temp string for trimming and holding strings
+  Dim cur_obj  As New Record            ' Empty record
+  Dim t_list   As List                  ' List returned from grid
+  Dim t_rec    As Record                ' Record from list
+  
+                                        ' List of fields is a list of strings
+                                        ' If no table selected, then the field
+                                        '  list is empty. Turn off add button, and
+                                        '  continue.
+  fld_list.ItemType = "String"
+  If DDL_NAME.Selected = "" Then
+     fld_list.AppendItem ""
+     BTN_ADD.Enabled = False
+     Goto put_in_cobj
+  End If
+  
+                                        ' Get the data from the grid
+                                        ' Loop through them. For each, if the item
+                                        '  selected in DDL is already in the grid,
+                                        '  then turn off the ADD button, and continue.
+  Set t_list = Cobj_LOR_OBJS.Contents
+  For t_int = 0 To t_list.Count - 1
+    Set t_rec = t_list.ItemByIndex(t_int)
+    If t_rec.GetField("table_or_view") = DDL_NAME.Selected Then
+       BTN_ADD.Enabled = False
+       Goto get_fields
+    End If
+  Next t_int
+  
+                                        ' New table/view name - we can add it
+  BTN_ADD.Enabled = True
+
+                                        ' Turn on/off the objid label/ddl based on
+                                        '  if it is a view, or not
+get_fields:
+  ret_list.ItemType = "string_type"
+  If is_view(DDL_NAME.Selected) Then
+     LBL_OBJID.Visible = True
+     DDL_OBJID.Visible = True
+  Else
+     LBL_OBJID.Visible = False
+     DDL_OBJID.Visible = False
+  End If  
+
+  
+                                        ' Build/execute query to get list of fields
+                                        '  for the table or view. Start off with one
+                                        '  empty field
+  get_fields_in_table ret_list, DDL_NAME.Selected
+  fld_list.AppendItem ""
+  
+                                        ' Loop through the list of fields records, 
+                                        '  add to list of strings
+  For t_int = 0 To ret_list.Count - 1
+    ret_list.GetItemByIndex t_int, ret_obj
+    t_str = ret_obj.ret_string
+    fld_list.AppendItem Trim$(t_str)
+  Next t_int
+  
+                                        ' Put list of fields into all the DDLs
+put_in_cobj:
+  Cobj_LIST_COLS.Fill fld_list
+
+                                        ' Get the table/view name
+                                        ' Clear out the current object (easiest way
+                                        '  to clear all the fields)
+  t_str = DDL_NAME.Selected
+  cur_obj.RecordType = "alert_table"
+  Cobj_CUR_OBJ.Fill cur_obj
+
+                                        ' Put table/view name back in ddl and alias field
+  TXT_ALIAS.Text = t_str
+  DDL_NAME.SetSelected t_str
+  
+                                        ' Turn off the buttons as needed
+                                        ' If requested, unhighlight from the grid
+  Me.DisableControls "BTN_DELETE", "BTN_REPLACE"
+  If clear_grid = True Then
+     CLB_OBJS.Unselect
+  End If
+End Sub
+
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' Delete Button Click Method
+'
+' Copyright (C) 2000. First Choice Software. All Rights Reserved.
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+Public Sub BTN_DELETE_Click()
+  Dim sel_rec As Record                 ' Record from the grid
+  Dim t_save  As New BulkSave           ' Structure for deleting from the DB
+  Dim t_ret   As New BulkRetrieve       ' Structure to query the DB
+  Dim t_list  As List                   ' List returned from query
+  Dim ret_int As Integer                ' Integer returned from msg_box
+  
+                                        ' Get the current object
+  Set sel_rec = CLB_OBJS.Selected
+  
+                                        ' Query and see if there are any flashes out there
+                                        '  for this type
+  t_ret.SimpleQuery 0, "alert_to_other"
+  t_ret.AppendFilter 0, "alias_name", cbEqual, sel_rec.GetField("alias_name")
+  t_ret.RetrieveRecords
+
+                                        
+                                        ' If there are, then error and exit
+  Set t_list = t_ret.GetRecordList(0)
+  If t_list.Count > 0 Then
+      ret_int = msg_box(get_sprintf(15706, locale, ""), get_sprintf(15600, locale, ""), 0)  
+     Exit Sub
+  End If
+  
+                                        ' Delete from the DB
+                                        ' Refresh the GUI
+  t_save.DeleteRecord sel_rec
+  t_save.Save
+  get_objs False  
+End Sub
+
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' Grid Click Method
+'
+' Copyright (C) 2000. First Choice Software. All Rights Reserved.
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+Public Sub CLB_OBJS_Click()
+  Dim the_obj As Record                 ' Record from the grid
+  
+                                        ' Get selected item from grid
+                                        ' Make a copy of it
+                                        ' Put copy in the current object
+                                        ' Load data for it, but don't clear the
+                                        '  grid
+                                        ' Put the current object back into Cobj
+                                        '  (it was cleared from previous step)
+                                        ' Turn on proper buttons
+  Set the_obj = CLB_OBJS.Selected
+  Set the_obj = the_obj.Copy
+  Cobj_CUR_OBJ.Fill the_obj
+  clear_grid = False
+  DDL_NAME_Click
+  clear_grid = True
+  Cobj_CUR_OBJ.Fill the_obj
+  Me.EnableControls "BTN_DELETE", "BTN_REPLACE"
+End Sub
+
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' Done Button Click Method
+'
+' Copyright (C) 2000. First Choice Software. All Rights Reserved.
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+Public Sub CLOSE_Click()
+  Me.Close
+End Sub
+
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' Message Handler
+'
+' Copyright (C) 2000. First Choice Software. All Rights Reserved.
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+Sub Message(ByVal num As Long, ByVal info As String)
+                                        ' If "Close", then close the form.
+                                        ' Various messages do various actions
+  Select Case num
+    Case cbCloseMessage
+      Me.Close cbCloseChildren
+    Case Else
+      Me.DoDefault
+  End Select
+End Sub

@@ -1,0 +1,181 @@
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''' 
+'                                                                          
+' Product        :  Flashes Anywhere
+'                                                                           
+' Name           :  flash_global.cbs                                           
+'                                                                           
+' Description    :  Provides code to allow the Flashes Anywhere GUI
+'                   from a Clarify application menu bar.   
+'
+'                   initialize_app() - clarify has been loaded    
+'                                                                           
+' Author          : First Choice Software, Inc.                             
+'                   4412 Spicewood Springs Road, Suite 701                            
+'                   Austin, TX 78759                                       
+'                   (512) 418-2905                                          
+'                                                                           
+' Platforms       : This version supports Clarify 5.0 and later             
+'                                                                           
+' Copyright (C)  2000 First Choice Software, Inc.                           
+' All Rights Reserved                                                       
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+Option Explicit
+
+Declare Sub make_colors()
+Declare Public Function FetchSchemaRev() As Integer
+Declare Public Function is_oracle() as Boolean
+
+Global locale As String                 ' Locale for program
+Global the_response As Integer          ' Response from question
+Global gcolor_scheme As String          ' Color scheme name for results grid
+Global gSchemaRev as Integer            ' Schema Revision
+Global gIsOracle as Boolean             ' Is this an Oracle database?
+ 
+                                        ' Message constants
+
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' Get the locale for the user
+'
+' Copyright (C) 2000. First Choice Software. All Rights Reserved.
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+Sub set_locale()
+  If Trim$(locale) <> "" Then Exit Sub
+  locale = Trim$(Environ("LC_STRING"))
+  If locale = "" Then
+     locale = Trim$(Environ("LC_ALL"))
+  End If
+  If locale = "" Then
+     locale = "EN_US"
+  End If
+End Sub
+
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' Initialize the Application
+'
+' Copyright (C) 2000 First Choice Software, Inc. All Rights Reserved
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+Sub initialize_app() 
+  Dim pc_menu As New AppMenu            ' Menu bar for P&C
+  Dim cs_menu As New AppMenu            ' Menu bar for CS
+
+                                        ' Get the locale for the user
+                                        ' Set the color scheme
+  set_locale
+  make_colors
+  gSchemaRev = FetchSchemaRev()  
+  gIsOracle = is_oracle()
+
+                                        ' Add Admin menu item
+  pc_menu.MenuBarID = 1001
+  pc_menu.AddItem "Setup", "Flashes Anywhere Admin", "flash_admin"
+
+  cs_menu.MenuBarID = 1002
+  cs_menu.AddItem "Select", "Flashes", "sel_flash"
+  cs_menu.AddItem "New", "Flash", "new_flash"
+
+                                        ' Done
+  App.ShowDefaultMenu  
+End Sub
+
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' Open the Select Flashes Form
+'
+' Copyright (C) 2000 First Choice Software, Inc. All Rights Reserved
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+Sub sel_flash_Click()
+  Dim new_form As New Form
+  
+  new_form.Show 2801, cbFrontIfUp
+End Sub
+
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' Open the New Flash Form
+'
+' Copyright (C) 2000 First Choice Software, Inc. All Rights Reserved
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+Sub new_flash_Click()
+  Dim new_form As New Form
+  
+  new_form.Show 2802, cbFrontIfUp
+End Sub
+
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' Open the Flashes Anywhere Admin Form
+'
+' Copyright (C) 2000 First Choice Software, Inc. All Rights Reserved
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+Sub flash_admin_Click()
+  Dim new_form As New Form
+  
+  new_form.Show 2800, cbFrontIfUp
+End Sub
+
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' Create the color scheme that will be used for grids
+'
+' Copyright (C) 2000 First Choice Software, Inc. All Rights Reserved
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+Sub make_colors()
+  Dim ColorVals  As New List            ' List of color values
+  Dim ColorNames As New List            ' List of color names
+
+                                        ' Set the color values  
+  ColorVals.AppendItem "Snow", "gray", "DarkOliveGreen", "sienna", "MediumOrchid", "GhostWhite", "LightGray"
+  ColorVals.AppendItem "DarkSeaGreen", "peru", "DarkOrchid", "WhiteSmoke", "MidnightBlue", "SeaGreen"
+  ColorVals.AppendItem "burlywood", "DarkViolet", "gainsboro", "navy", "MediumSeaGreen", "beige"
+  ColorVals.AppendItem "BlueViolet", "FloralWhite", "NavyBlue", "LightSeaGreen", "wheat", "Purple", "OldLace"
+  ColorVals.AppendItem "CornflowerBlue", "PaleGreen", "SandyBrown", "MediumPurple", "linen", "DarkSlateBlue"
+  ColorVals.AppendItem "SpringGreen", "tan", "thistle", "AntiqueWhite", "SlateBlue", "LawnGreen", "chocolate"
+  ColorVals.AppendItem "PapayaWhip", "MediumSlateBlue", "green", "firebrick", "BlanchedAlmond"
+  ColorVals.AppendItem "LightSlateBlue", "chartreuse", "brown", "bisque", "MediumBlue", "MediumSpringGreen"
+  ColorVals.AppendItem "DarkSalmon", "PeachPuff", "RoyalBlue", "GreenYellow", "salmon", "NavajoWhite", "blue"
+  ColorVals.AppendItem "LimeGreen", "LightSalmon", "moccasin", "DodgerBlue", "YellowGreen", "orange"
+  ColorVals.AppendItem "cornsilk", "DeepSkyBlue", "ForestGreen", "DarkOrange", "ivory", "SkyBlue"
+  ColorVals.AppendItem "OliveDrab", "coral", "LemonChiffon", "LightSkyBlue", "DarkKhaki", "LightCoral"
+  ColorVals.AppendItem "seashell", "SteelBlue", "khaki", "tomato", "honeydew", "LightSteelBlue"
+  ColorVals.AppendItem "PaleGoldenrod", "OrangeRed", "MintCream", "LightBlue", "LightGoldenrodYellow", "red"
+  ColorVals.AppendItem "azure", "PowderBlue", "LightYellow", "HotPink", "AliceBlue", "PaleTurquoise"
+  ColorVals.AppendItem "yellow", "DeepPink", "lavender", "DarkTurquoise", "gold", "pink", "LavenderBlush"
+  ColorVals.AppendItem "MediumTurquoise", "LightGoldenrod", "LightPink", "mistyrose", "turquoise"
+  ColorVals.AppendItem "goldenrod", "PaleVioletRed", "white", "cyan", "DarkGoldenrod", "maroon", "black"
+  ColorVals.AppendItem "LightCyan", "RosyBrown", "MediumVioletRed", "DarkSlateGray", "CadetBlue"
+  ColorVals.AppendItem "Indianred", "VioletRed", "DimGray", "MediumAquamarine", "SaddleBrown", "magenta"
+  ColorVals.AppendItem "SlateGray", "aquamarine", "violet", "LightSlateGray", "DarkGreen", "plum"
+
+                                        ' Set the color names
+  ColorNames.AppendItem "Snow", "gray", "DarkOliveGreen", "sienna", "MediumOrchid", "GhostWhite", "LightGray"
+  ColorNames.AppendItem "DarkSeaGreen", "peru", "DarkOrchid", "WhiteSmoke", "MidnightBlue", "SeaGreen"
+  ColorNames.AppendItem "burlywood", "DarkViolet", "gainsboro", "navy", "MediumSeaGreen", "beige"
+  ColorNames.AppendItem "BlueViolet", "FloralWhite", "NavyBlue", "LightSeaGreen", "wheat", "Purple", "OldLace"
+  ColorNames.AppendItem "CornflowerBlue", "PaleGreen", "SandyBrown", "MediumPurple", "linen", "DarkSlateBlue"
+  ColorNames.AppendItem "SpringGreen", "tan", "thistle", "AntiqueWhite", "SlateBlue", "LawnGreen", "chocolate"
+  ColorNames.AppendItem "PapayaWhip", "MediumSlateBlue", "green", "firebrick", "BlanchedAlmond"
+  ColorNames.AppendItem "LightSlateBlue", "chartreuse", "brown", "bisque", "MediumBlue", "MediumSpringGreen"
+  ColorNames.AppendItem "DarkSalmon", "PeachPuff", "RoyalBlue", "GreenYellow", "salmon", "NavajoWhite", "blue"
+  ColorNames.AppendItem "LimeGreen", "LightSalmon", "moccasin", "DodgerBlue", "YellowGreen", "orange"
+  ColorNames.AppendItem "cornsilk", "DeepSkyBlue", "ForestGreen", "DarkOrange", "ivory", "SkyBlue"
+  ColorNames.AppendItem "OliveDrab", "coral", "LemonChiffon", "LightSkyBlue", "DarkKhaki", "LightCoral"
+  ColorNames.AppendItem "seashell", "SteelBlue", "khaki", "tomato", "honeydew", "LightSteelBlue"
+  ColorNames.AppendItem "PaleGoldenrod", "OrangeRed", "MintCream", "LightBlue", "LightGoldenrodYellow", "red"
+  ColorNames.AppendItem "azure", "PowderBlue", "LightYellow", "HotPink", "AliceBlue", "PaleTurquoise"
+  ColorNames.AppendItem "yellow", "DeepPink", "lavender", "DarkTurquoise", "gold", "pink", "LavenderBlush"
+  ColorNames.AppendItem "MediumTurquoise", "LightGoldenrod", "LightPink", "mistyrose", "turquoise"
+  ColorNames.AppendItem "goldenrod", "PaleVioletRed", "white", "cyan", "DarkGoldenrod", "maroon", "black"
+  ColorNames.AppendItem "LightCyan", "RosyBrown", "MediumVioletRed", "DarkSlateGray", "CadetBlue"
+  ColorNames.AppendItem "Indianred", "VioletRed", "DimGray", "MediumAquamarine", "SaddleBrown", "magenta"
+  ColorNames.AppendItem "SlateGray", "aquamarine", "violet", "LightSlateGray", "DarkGreen", "plum"
+
+                                        ' Set the query anything color scheme name
+                                        ' Create the color scheme/register it
+                                        ' Set it as current
+  gcolor_scheme = "PRIMARY_COLOR_SCHEME"
+  App.CreateColorScheme gcolor_scheme, ColorNames, ColorVals
+  App.SetColorScheme gcolor_scheme
+End Sub

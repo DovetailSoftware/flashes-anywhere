@@ -1,0 +1,985 @@
+OBJECT  TYPE="window_db", NAME="WINDOW_DB_2803_1.0_fl1.0"
+ UNIQUE_FIELD = id , ver_clarify, ver_customer, locale
+  FIELDS
+   title ="Flash - General Tab";
+   id=2803;
+   top_c=32;
+   bottom_c=369;
+   left_c=38;
+   right_c=709;
+   flags=0;
+   type=12;
+   form=1;
+   intval1=0;
+   intval2=0;
+   intval3=0;
+   min_width=0;
+   min_height=0;
+   description ="";
+   dimmable=0;
+   dialog_name ="fl2803";
+   ver_clarify ="1.0";
+   ver_customer ="fl1.0";
+   base_flag ="";
+   preload ="";
+   dlg_time_stamp = DATE "08/20/2009 11:02:19";
+   factor_top=0;
+   factor_bottom=0;
+   factor_left=0;
+   factor_right=0;
+   ver_cl_srce ="";
+   dev=0;
+   locale=0;
+   banner_icon=-1;
+   banner_color=-1;
+   backcolor=-1;
+   value1 ="";
+  END_FIELDS
+  RELATIONS
+  END_RELATIONS
+END_OBJECT  NAME="WINDOW_DB_2803_1.0_fl1.0"
+
+OBJECT  TYPE="control_db", NAME="CONTROL_DB_2803_1.0_fl1.0_1"
+ UNIQUE_FIELD=id,name UNIQUE_RELATION=control2window_db
+  FIELDS
+   type=0;
+   id=1;
+   title ="Title:";
+   top_c=16;
+   bottom_c=32;
+   left_c=9;
+   right_c=105;
+   from_side=0;
+   to_ctrl_id=0;
+   same_side=0;
+   justification=0;
+   flags=0;
+   vlink_name ="";
+   vlink_fld=-1;
+   vlink_dtype=-1;
+   tlink_name ="";
+   tlink_fld=-1;
+   tlink_dtype=-1;
+   name ="LBL_TITLE";
+   intval1=0;
+   intval2=0;
+   intval3=0;
+   intval4=0;
+   value1 ="0,0,0,0,0,0,0,0,0,0,0,0,0,";
+   value2 ="";
+   win_id=2803;
+   function_id=0;
+   description ="";
+   dimmable=0;
+   vlink_fld_name ="";
+   tlink_fld_name ="";
+   dev=0;
+   flags2=0;
+   backcolor=0;
+   forecolor=0;
+   font ="0,0,0,0,0,0,0,0,0,0,0,0,0,";
+   value3 ="";
+  END_FIELDS
+  RELATIONS
+   TO_NAME="WINDOW_DB_2803_1.0_fl1.0" REL=control2window_db;
+  END_RELATIONS
+END_OBJECT  NAME="CONTROL_DB_2803_1.0_fl1.0_1"
+
+OBJECT  TYPE="control_db", NAME="CONTROL_DB_2803_1.0_fl1.0_2"
+ UNIQUE_FIELD=id,name UNIQUE_RELATION=control2window_db
+  FIELDS
+   type=0;
+   id=2;
+   title ="Text:";
+   top_c=120;
+   bottom_c=136;
+   left_c=9;
+   right_c=105;
+   from_side=0;
+   to_ctrl_id=0;
+   same_side=0;
+   justification=0;
+   flags=0;
+   vlink_name ="";
+   vlink_fld=-1;
+   vlink_dtype=-1;
+   tlink_name ="";
+   tlink_fld=-1;
+   tlink_dtype=-1;
+   name ="LBL_TEXT";
+   intval1=0;
+   intval2=0;
+   intval3=0;
+   intval4=0;
+   value1 ="0,0,0,0,0,0,0,0,0,0,0,0,0,";
+   value2 ="";
+   win_id=2803;
+   function_id=0;
+   description ="";
+   dimmable=0;
+   vlink_fld_name ="";
+   tlink_fld_name ="";
+   dev=0;
+   flags2=0;
+   backcolor=0;
+   forecolor=0;
+   font ="0,0,0,0,0,0,0,0,0,0,0,0,0,";
+   value3 ="";
+  END_FIELDS
+  RELATIONS
+   TO_NAME="WINDOW_DB_2803_1.0_fl1.0" REL=control2window_db;
+  END_RELATIONS
+END_OBJECT  NAME="CONTROL_DB_2803_1.0_fl1.0_2"
+
+OBJECT  TYPE="control_db", NAME="CONTROL_DB_2803_1.0_fl1.0_3"
+ UNIQUE_FIELD=id,name UNIQUE_RELATION=control2window_db
+  FIELDS
+   type=0;
+   id=3;
+   title ="Start Date:";
+   top_c=50;
+   bottom_c=66;
+   left_c=9;
+   right_c=105;
+   from_side=0;
+   to_ctrl_id=0;
+   same_side=0;
+   justification=0;
+   flags=0;
+   vlink_name ="";
+   vlink_fld=-1;
+   vlink_dtype=-1;
+   tlink_name ="";
+   tlink_fld=-1;
+   tlink_dtype=-1;
+   name ="LBL_START";
+   intval1=0;
+   intval2=0;
+   intval3=0;
+   intval4=0;
+   value1 ="0,0,0,0,0,0,0,0,0,0,0,0,0,";
+   value2 ="";
+   win_id=2803;
+   function_id=0;
+   description ="";
+   dimmable=0;
+   vlink_fld_name ="";
+   tlink_fld_name ="";
+   dev=0;
+   flags2=0;
+   backcolor=0;
+   forecolor=0;
+   font ="0,0,0,0,0,0,0,0,0,0,0,0,0,";
+   value3 ="";
+  END_FIELDS
+  RELATIONS
+   TO_NAME="WINDOW_DB_2803_1.0_fl1.0" REL=control2window_db;
+  END_RELATIONS
+END_OBJECT  NAME="CONTROL_DB_2803_1.0_fl1.0_3"
+
+OBJECT  TYPE="control_db", NAME="CONTROL_DB_2803_1.0_fl1.0_4"
+ UNIQUE_FIELD=id,name UNIQUE_RELATION=control2window_db
+  FIELDS
+   type=0;
+   id=4;
+   title ="End Date:";
+   top_c=82;
+   bottom_c=98;
+   left_c=9;
+   right_c=105;
+   from_side=0;
+   to_ctrl_id=0;
+   same_side=0;
+   justification=0;
+   flags=0;
+   vlink_name ="";
+   vlink_fld=-1;
+   vlink_dtype=-1;
+   tlink_name ="";
+   tlink_fld=-1;
+   tlink_dtype=-1;
+   name ="LBL_END";
+   intval1=0;
+   intval2=0;
+   intval3=0;
+   intval4=0;
+   value1 ="0,0,0,0,0,0,0,0,0,0,0,0,0,";
+   value2 ="";
+   win_id=2803;
+   function_id=0;
+   description ="";
+   dimmable=0;
+   vlink_fld_name ="";
+   tlink_fld_name ="";
+   dev=0;
+   flags2=0;
+   backcolor=0;
+   forecolor=0;
+   font ="0,0,0,0,0,0,0,0,0,0,0,0,0,";
+   value3 ="";
+  END_FIELDS
+  RELATIONS
+   TO_NAME="WINDOW_DB_2803_1.0_fl1.0" REL=control2window_db;
+  END_RELATIONS
+END_OBJECT  NAME="CONTROL_DB_2803_1.0_fl1.0_4"
+
+OBJECT  TYPE="control_db", NAME="CONTROL_DB_2803_1.0_fl1.0_5"
+ UNIQUE_FIELD=id,name UNIQUE_RELATION=control2window_db
+  FIELDS
+   type=3;
+   id=5;
+   title ="";
+   top_c=14;
+   bottom_c=34;
+   left_c=115;
+   right_c=331;
+   from_side=0;
+   to_ctrl_id=0;
+   same_side=0;
+   justification=0;
+   flags=0;
+   vlink_name ="CUR_OBJ";
+   vlink_fld=6;
+   vlink_dtype=516;
+   tlink_name ="";
+   tlink_fld=-1;
+   tlink_dtype=-1;
+   name ="TXT_TITLE";
+   intval1=0;
+   intval2=-1;
+   intval3=0;
+   intval4=0;
+   value1 ="";
+   value2 ="";
+   win_id=2803;
+   function_id=0;
+   description ="";
+   dimmable=0;
+   vlink_fld_name ="title";
+   tlink_fld_name ="";
+   dev=0;
+   flags2=0;
+   backcolor=0;
+   forecolor=0;
+   font ="-10,0,0,0,400,0,0,0,0,1,2,1,34,MS Sans Serif";
+   value3 ="";
+  END_FIELDS
+  RELATIONS
+   TO_NAME="WINDOW_DB_2803_1.0_fl1.0" REL=control2window_db;
+  END_RELATIONS
+END_OBJECT  NAME="CONTROL_DB_2803_1.0_fl1.0_5"
+
+OBJECT  TYPE="control_db", NAME="CONTROL_DB_2803_1.0_fl1.0_6"
+ UNIQUE_FIELD=id,name UNIQUE_RELATION=control2window_db
+  FIELDS
+   type=6;
+   id=6;
+   title ="Urgent?";
+   top_c=16;
+   bottom_c=32;
+   left_c=384;
+   right_c=480;
+   from_side=0;
+   to_ctrl_id=0;
+   same_side=0;
+   justification=0;
+   flags=16;
+   vlink_name ="CUR_OBJ";
+   vlink_fld=7;
+   vlink_dtype=512;
+   tlink_name ="";
+   tlink_fld=-1;
+   tlink_dtype=-1;
+   name ="CHK_URGENT";
+   intval1=0;
+   intval2=0;
+   intval3=0;
+   intval4=0;
+   value1 ="";
+   value2 ="";
+   win_id=2803;
+   function_id=0;
+   description ="";
+   dimmable=0;
+   vlink_fld_name ="hot";
+   tlink_fld_name ="";
+   dev=0;
+   flags2=0;
+   backcolor=0;
+   forecolor=0;
+   font ="0,0,0,0,0,0,0,0,0,0,0,0,0,";
+   value3 ="";
+  END_FIELDS
+  RELATIONS
+   TO_NAME="WINDOW_DB_2803_1.0_fl1.0" REL=control2window_db;
+  END_RELATIONS
+END_OBJECT  NAME="CONTROL_DB_2803_1.0_fl1.0_6"
+
+OBJECT  TYPE="control_db", NAME="CONTROL_DB_2803_1.0_fl1.0_7"
+ UNIQUE_FIELD=id,name UNIQUE_RELATION=control2window_db
+  FIELDS
+   type=6;
+   id=7;
+   title ="Active?";
+   top_c=16;
+   bottom_c=32;
+   left_c=518;
+   right_c=614;
+   from_side=0;
+   to_ctrl_id=0;
+   same_side=0;
+   justification=0;
+   flags=16;
+   vlink_name ="CUR_OBJ";
+   vlink_fld=10;
+   vlink_dtype=512;
+   tlink_name ="";
+   tlink_fld=-1;
+   tlink_dtype=-1;
+   name ="CHK_ACTIVE";
+   intval1=0;
+   intval2=0;
+   intval3=0;
+   intval4=0;
+   value1 ="";
+   value2 ="";
+   win_id=2803;
+   function_id=0;
+   description ="";
+   dimmable=0;
+   vlink_fld_name ="x_active";
+   tlink_fld_name ="";
+   dev=0;
+   flags2=0;
+   backcolor=0;
+   forecolor=0;
+   font ="0,0,0,0,0,0,0,0,0,0,0,0,0,";
+   value3 ="";
+  END_FIELDS
+  RELATIONS
+   TO_NAME="WINDOW_DB_2803_1.0_fl1.0" REL=control2window_db;
+  END_RELATIONS
+END_OBJECT  NAME="CONTROL_DB_2803_1.0_fl1.0_7"
+
+OBJECT  TYPE="control_db", NAME="CONTROL_DB_2803_1.0_fl1.0_8"
+ UNIQUE_FIELD=id,name UNIQUE_RELATION=control2window_db
+  FIELDS
+   type=3;
+   id=8;
+   title ="";
+   top_c=48;
+   bottom_c=68;
+   left_c=115;
+   right_c=331;
+   from_side=0;
+   to_ctrl_id=0;
+   same_side=0;
+   justification=0;
+   flags=256;
+   vlink_name ="CUR_OBJ";
+   vlink_fld=3;
+   vlink_dtype=609;
+   tlink_name ="";
+   tlink_fld=-1;
+   tlink_dtype=-1;
+   name ="TXT_START";
+   intval1=0;
+   intval2=-1;
+   intval3=0;
+   intval4=0;
+   value1 ="";
+   value2 ="";
+   win_id=2803;
+   function_id=0;
+   description ="";
+   dimmable=0;
+   vlink_fld_name ="start_date";
+   tlink_fld_name ="";
+   dev=0;
+   flags2=0;
+   backcolor=0;
+   forecolor=0;
+   font ="-10,0,0,0,400,0,0,0,0,1,2,1,34,MS Sans Serif";
+   value3 ="";
+  END_FIELDS
+  RELATIONS
+   TO_NAME="WINDOW_DB_2803_1.0_fl1.0" REL=control2window_db;
+  END_RELATIONS
+END_OBJECT  NAME="CONTROL_DB_2803_1.0_fl1.0_8"
+
+OBJECT  TYPE="control_db", NAME="CONTROL_DB_2803_1.0_fl1.0_9"
+ UNIQUE_FIELD=id,name UNIQUE_RELATION=control2window_db
+  FIELDS
+   type=4;
+   id=9;
+   title ="D/T";
+   top_c=48;
+   bottom_c=68;
+   left_c=345;
+   right_c=374;
+   from_side=0;
+   to_ctrl_id=0;
+   same_side=0;
+   justification=0;
+   flags=0;
+   vlink_name ="";
+   vlink_fld=0;
+   vlink_dtype=-1;
+   tlink_name ="";
+   tlink_fld=-1;
+   tlink_dtype=-1;
+   name ="BTN_START_DT";
+   intval1=2;
+   intval2=1150;
+   intval3=1150;
+   intval4=1151;
+   value1 ="";
+   value2 ="";
+   win_id=2803;
+   function_id=0;
+   description ="";
+   dimmable=0;
+   vlink_fld_name ="";
+   tlink_fld_name ="";
+   dev=0;
+   flags2=0;
+   backcolor=0;
+   forecolor=0;
+   font ="0,0,0,0,0,0,0,0,0,0,0,0,0,";
+   value3 ="";
+  END_FIELDS
+  RELATIONS
+   TO_NAME="WINDOW_DB_2803_1.0_fl1.0" REL=control2window_db;
+  END_RELATIONS
+END_OBJECT  NAME="CONTROL_DB_2803_1.0_fl1.0_9"
+
+OBJECT  TYPE="control_db", NAME="CONTROL_DB_2803_1.0_fl1.0_10"
+ UNIQUE_FIELD=id,name UNIQUE_RELATION=control2window_db
+  FIELDS
+   type=4;
+   id=10;
+   title ="Clear";
+   top_c=48;
+   bottom_c=68;
+   left_c=384;
+   right_c=480;
+   from_side=0;
+   to_ctrl_id=0;
+   same_side=0;
+   justification=0;
+   flags=0;
+   vlink_name ="";
+   vlink_fld=-1;
+   vlink_dtype=-1;
+   tlink_name ="";
+   tlink_fld=-1;
+   tlink_dtype=-1;
+   name ="BTN_START_CLEAR";
+   intval1=0;
+   intval2=0;
+   intval3=0;
+   intval4=0;
+   value1 ="";
+   value2 ="";
+   win_id=2803;
+   function_id=0;
+   description ="";
+   dimmable=0;
+   vlink_fld_name ="";
+   tlink_fld_name ="";
+   dev=0;
+   flags2=0;
+   backcolor=0;
+   forecolor=0;
+   font ="0,0,0,0,0,0,0,0,0,0,0,0,0,";
+   value3 ="";
+  END_FIELDS
+  RELATIONS
+   TO_NAME="WINDOW_DB_2803_1.0_fl1.0" REL=control2window_db;
+  END_RELATIONS
+END_OBJECT  NAME="CONTROL_DB_2803_1.0_fl1.0_10"
+
+OBJECT  TYPE="control_db", NAME="CONTROL_DB_2803_1.0_fl1.0_11"
+ UNIQUE_FIELD=id,name UNIQUE_RELATION=control2window_db
+  FIELDS
+   type=3;
+   id=11;
+   title ="";
+   top_c=80;
+   bottom_c=100;
+   left_c=115;
+   right_c=331;
+   from_side=0;
+   to_ctrl_id=0;
+   same_side=0;
+   justification=0;
+   flags=256;
+   vlink_name ="CUR_OBJ";
+   vlink_fld=4;
+   vlink_dtype=609;
+   tlink_name ="";
+   tlink_fld=-1;
+   tlink_dtype=-1;
+   name ="TXT_END";
+   intval1=0;
+   intval2=-1;
+   intval3=0;
+   intval4=0;
+   value1 ="";
+   value2 ="";
+   win_id=2803;
+   function_id=0;
+   description ="";
+   dimmable=0;
+   vlink_fld_name ="end_date";
+   tlink_fld_name ="";
+   dev=0;
+   flags2=0;
+   backcolor=0;
+   forecolor=0;
+   font ="-10,0,0,0,400,0,0,0,0,1,2,1,34,MS Sans Serif";
+   value3 ="";
+  END_FIELDS
+  RELATIONS
+   TO_NAME="WINDOW_DB_2803_1.0_fl1.0" REL=control2window_db;
+  END_RELATIONS
+END_OBJECT  NAME="CONTROL_DB_2803_1.0_fl1.0_11"
+
+OBJECT  TYPE="control_db", NAME="CONTROL_DB_2803_1.0_fl1.0_12"
+ UNIQUE_FIELD=id,name UNIQUE_RELATION=control2window_db
+  FIELDS
+   type=4;
+   id=12;
+   title ="D/T";
+   top_c=80;
+   bottom_c=100;
+   left_c=345;
+   right_c=374;
+   from_side=0;
+   to_ctrl_id=0;
+   same_side=0;
+   justification=0;
+   flags=0;
+   vlink_name ="";
+   vlink_fld=0;
+   vlink_dtype=-1;
+   tlink_name ="";
+   tlink_fld=-1;
+   tlink_dtype=-1;
+   name ="BTN_END_DT";
+   intval1=2;
+   intval2=1150;
+   intval3=1150;
+   intval4=1151;
+   value1 ="";
+   value2 ="";
+   win_id=2803;
+   function_id=0;
+   description ="";
+   dimmable=0;
+   vlink_fld_name ="";
+   tlink_fld_name ="";
+   dev=0;
+   flags2=0;
+   backcolor=0;
+   forecolor=0;
+   font ="0,0,0,0,0,0,0,0,0,0,0,0,0,";
+   value3 ="";
+  END_FIELDS
+  RELATIONS
+   TO_NAME="WINDOW_DB_2803_1.0_fl1.0" REL=control2window_db;
+  END_RELATIONS
+END_OBJECT  NAME="CONTROL_DB_2803_1.0_fl1.0_12"
+
+OBJECT  TYPE="control_db", NAME="CONTROL_DB_2803_1.0_fl1.0_13"
+ UNIQUE_FIELD=id,name UNIQUE_RELATION=control2window_db
+  FIELDS
+   type=4;
+   id=13;
+   title ="Clear";
+   top_c=80;
+   bottom_c=100;
+   left_c=384;
+   right_c=480;
+   from_side=0;
+   to_ctrl_id=0;
+   same_side=0;
+   justification=0;
+   flags=0;
+   vlink_name ="";
+   vlink_fld=-1;
+   vlink_dtype=-1;
+   tlink_name ="";
+   tlink_fld=-1;
+   tlink_dtype=-1;
+   name ="BTN_END_CLEAR";
+   intval1=0;
+   intval2=0;
+   intval3=0;
+   intval4=0;
+   value1 ="";
+   value2 ="";
+   win_id=2803;
+   function_id=0;
+   description ="";
+   dimmable=0;
+   vlink_fld_name ="";
+   tlink_fld_name ="";
+   dev=0;
+   flags2=0;
+   backcolor=0;
+   forecolor=0;
+   font ="0,0,0,0,0,0,0,0,0,0,0,0,0,";
+   value3 ="";
+  END_FIELDS
+  RELATIONS
+   TO_NAME="WINDOW_DB_2803_1.0_fl1.0" REL=control2window_db;
+  END_RELATIONS
+END_OBJECT  NAME="CONTROL_DB_2803_1.0_fl1.0_13"
+
+OBJECT  TYPE="control_db", NAME="CONTROL_DB_2803_1.0_fl1.0_14"
+ UNIQUE_FIELD=id,name UNIQUE_RELATION=control2window_db
+  FIELDS
+   type=3;
+   id=14;
+   title ="";
+   top_c=136;
+   bottom_c=320;
+   left_c=9;
+   right_c=650;
+   from_side=0;
+   to_ctrl_id=0;
+   same_side=0;
+   justification=0;
+   flags=33554432;
+   vlink_name ="CUR_OBJ";
+   vlink_fld=16777239;
+   vlink_dtype=516;
+   tlink_name ="";
+   tlink_fld=-1;
+   tlink_dtype=-1;
+   name ="TXT_TEXT";
+   intval1=0;
+   intval2=-1;
+   intval3=0;
+   intval4=0;
+   value1 ="";
+   value2 ="";
+   win_id=2803;
+   function_id=0;
+   description ="";
+   dimmable=0;
+   vlink_fld_name ="alert_text";
+   tlink_fld_name ="";
+   dev=0;
+   flags2=0;
+   backcolor=0;
+   forecolor=0;
+   font ="-10,0,0,0,400,0,0,0,0,1,2,1,34,MS Sans Serif";
+   value3 ="";
+  END_FIELDS
+  RELATIONS
+   TO_NAME="WINDOW_DB_2803_1.0_fl1.0" REL=control2window_db;
+  END_RELATIONS
+END_OBJECT  NAME="CONTROL_DB_2803_1.0_fl1.0_14"
+
+OBJECT  TYPE="value_item", NAME="VALUE_ITEM_2803_1.0_fl1.0_0_0"
+ UNIQUE_FIELD = id , ctl_id UNIQUE_RELATION = item2window_db 
+  FIELDS
+   id=0;
+   value1 ="LOR_DEL";
+   value2 ="";
+   value3 ="";
+   intval1=0;
+   intval2=0;
+   intval3=0;
+   intval4=0;
+   ctl_id=0;
+   value4 ="";
+   intval5=0;
+   intval6=0;
+   intval7=0;
+   intval8=0;
+   intval9=0;
+   dev=0;
+   value5 ="";
+   intval10=-4;
+   column_ctl_id=-1;
+  END_FIELDS
+  RELATIONS
+   TO_NAME="WINDOW_DB_2803_1.0_fl1.0" REL=item2window_db;
+  END_RELATIONS
+END_OBJECT  NAME="VALUE_ITEM_2803_1.0_fl1.0_0_0"
+
+OBJECT  TYPE="ctx_obj_db", NAME="CTX_OBJ_DB_2803_1.0_fl1.0_CUR_OBJ"
+ UNIQUE_FIELD = title  UNIQUE_RELATION = ctx_obj2window_db 
+  FIELDS
+   title ="CUR_OBJ";
+   type=95;
+   idx=0;
+   behavior=16;
+   str_size=0;
+   dev=0;
+   caption ="CUR_OBJ";
+   subtype ="";
+  END_FIELDS
+  RELATIONS
+   TO_NAME="WINDOW_DB_2803_1.0_fl1.0" REL=ctx_obj2window_db;
+  END_RELATIONS
+END_OBJECT  NAME="CTX_OBJ_DB_2803_1.0_fl1.0_CUR_OBJ"
+
+OBJECT  TYPE="ctx_obj_db", NAME="CTX_OBJ_DB_2803_1.0_fl1.0_LOR_AVAIL"
+ UNIQUE_FIELD = title  UNIQUE_RELATION = ctx_obj2window_db 
+  FIELDS
+   title ="LOR_AVAIL";
+   type=47;
+   idx=1;
+   behavior=16;
+   str_size=0;
+   dev=0;
+   caption ="LOR_AVAIL";
+   subtype ="";
+  END_FIELDS
+  RELATIONS
+   TO_NAME="WINDOW_DB_2803_1.0_fl1.0" REL=ctx_obj2window_db;
+  END_RELATIONS
+END_OBJECT  NAME="CTX_OBJ_DB_2803_1.0_fl1.0_LOR_AVAIL"
+
+OBJECT  TYPE="ctx_obj_db", NAME="CTX_OBJ_DB_2803_1.0_fl1.0_LOS_AVAIL"
+ UNIQUE_FIELD = title  UNIQUE_RELATION = ctx_obj2window_db 
+  FIELDS
+   title ="LOS_AVAIL";
+   type=518;
+   idx=2;
+   behavior=16;
+   str_size=0;
+   dev=0;
+   caption ="LOS_AVAIL";
+   subtype ="";
+  END_FIELDS
+  RELATIONS
+   TO_NAME="WINDOW_DB_2803_1.0_fl1.0" REL=ctx_obj2window_db;
+  END_RELATIONS
+END_OBJECT  NAME="CTX_OBJ_DB_2803_1.0_fl1.0_LOS_AVAIL"
+
+OBJECT  TYPE="ctx_obj_db", NAME="CTX_OBJ_DB_2803_1.0_fl1.0_LOR_SEL"
+ UNIQUE_FIELD = title  UNIQUE_RELATION = ctx_obj2window_db 
+  FIELDS
+   title ="LOR_SEL";
+   type=47;
+   idx=3;
+   behavior=16;
+   str_size=0;
+   dev=0;
+   caption ="LOR_SEL";
+   subtype ="";
+  END_FIELDS
+  RELATIONS
+   TO_NAME="WINDOW_DB_2803_1.0_fl1.0" REL=ctx_obj2window_db;
+  END_RELATIONS
+END_OBJECT  NAME="CTX_OBJ_DB_2803_1.0_fl1.0_LOR_SEL"
+
+OBJECT  TYPE="ctx_obj_db", NAME="CTX_OBJ_DB_2803_1.0_fl1.0_LOS_SEL"
+ UNIQUE_FIELD = title  UNIQUE_RELATION = ctx_obj2window_db 
+  FIELDS
+   title ="LOS_SEL";
+   type=518;
+   idx=4;
+   behavior=16;
+   str_size=0;
+   dev=0;
+   caption ="LOS_SEL";
+   subtype ="";
+  END_FIELDS
+  RELATIONS
+   TO_NAME="WINDOW_DB_2803_1.0_fl1.0" REL=ctx_obj2window_db;
+  END_RELATIONS
+END_OBJECT  NAME="CTX_OBJ_DB_2803_1.0_fl1.0_LOS_SEL"
+
+OBJECT  TYPE="ctx_obj_db", NAME="CTX_OBJ_DB_2803_1.0_fl1.0_QRY_STR1"
+ UNIQUE_FIELD = title  UNIQUE_RELATION = ctx_obj2window_db 
+  FIELDS
+   title ="QRY_STR1";
+   type=516;
+   idx=5;
+   behavior=16;
+   str_size=0;
+   dev=0;
+   caption ="QRY_STR1";
+   subtype ="";
+  END_FIELDS
+  RELATIONS
+   TO_NAME="WINDOW_DB_2803_1.0_fl1.0" REL=ctx_obj2window_db;
+  END_RELATIONS
+END_OBJECT  NAME="CTX_OBJ_DB_2803_1.0_fl1.0_QRY_STR1"
+
+OBJECT  TYPE="ctx_obj_db", NAME="CTX_OBJ_DB_2803_1.0_fl1.0_QRY_STR2"
+ UNIQUE_FIELD = title  UNIQUE_RELATION = ctx_obj2window_db 
+  FIELDS
+   title ="QRY_STR2";
+   type=516;
+   idx=6;
+   behavior=16;
+   str_size=0;
+   dev=0;
+   caption ="QRY_STR2";
+   subtype ="";
+  END_FIELDS
+  RELATIONS
+   TO_NAME="WINDOW_DB_2803_1.0_fl1.0" REL=ctx_obj2window_db;
+  END_RELATIONS
+END_OBJECT  NAME="CTX_OBJ_DB_2803_1.0_fl1.0_QRY_STR2"
+
+OBJECT  TYPE="ctx_obj_db", NAME="CTX_OBJ_DB_2803_1.0_fl1.0_QRY_STR3"
+ UNIQUE_FIELD = title  UNIQUE_RELATION = ctx_obj2window_db 
+  FIELDS
+   title ="QRY_STR3";
+   type=516;
+   idx=7;
+   behavior=16;
+   str_size=0;
+   dev=0;
+   caption ="QRY_STR3";
+   subtype ="";
+  END_FIELDS
+  RELATIONS
+   TO_NAME="WINDOW_DB_2803_1.0_fl1.0" REL=ctx_obj2window_db;
+  END_RELATIONS
+END_OBJECT  NAME="CTX_OBJ_DB_2803_1.0_fl1.0_QRY_STR3"
+
+OBJECT  TYPE="ctx_obj_db", NAME="CTX_OBJ_DB_2803_1.0_fl1.0_QRY_STR4"
+ UNIQUE_FIELD = title  UNIQUE_RELATION = ctx_obj2window_db 
+  FIELDS
+   title ="QRY_STR4";
+   type=516;
+   idx=8;
+   behavior=16;
+   str_size=0;
+   dev=0;
+   caption ="QRY_STR4";
+   subtype ="";
+  END_FIELDS
+  RELATIONS
+   TO_NAME="WINDOW_DB_2803_1.0_fl1.0" REL=ctx_obj2window_db;
+  END_RELATIONS
+END_OBJECT  NAME="CTX_OBJ_DB_2803_1.0_fl1.0_QRY_STR4"
+
+OBJECT  TYPE="ctx_obj_db", NAME="CTX_OBJ_DB_2803_1.0_fl1.0_QRY_STR5"
+ UNIQUE_FIELD = title  UNIQUE_RELATION = ctx_obj2window_db 
+  FIELDS
+   title ="QRY_STR5";
+   type=516;
+   idx=9;
+   behavior=16;
+   str_size=0;
+   dev=0;
+   caption ="QRY_STR5";
+   subtype ="";
+  END_FIELDS
+  RELATIONS
+   TO_NAME="WINDOW_DB_2803_1.0_fl1.0" REL=ctx_obj2window_db;
+  END_RELATIONS
+END_OBJECT  NAME="CTX_OBJ_DB_2803_1.0_fl1.0_QRY_STR5"
+
+OBJECT  TYPE="ctx_obj_db", NAME="CTX_OBJ_DB_2803_1.0_fl1.0_TABLE_LIST"
+ UNIQUE_FIELD = title  UNIQUE_RELATION = ctx_obj2window_db 
+  FIELDS
+   title ="TABLE_LIST";
+   type=518;
+   idx=10;
+   behavior=16;
+   str_size=0;
+   dev=0;
+   caption ="TABLE_LIST";
+   subtype ="";
+  END_FIELDS
+  RELATIONS
+   TO_NAME="WINDOW_DB_2803_1.0_fl1.0" REL=ctx_obj2window_db;
+  END_RELATIONS
+END_OBJECT  NAME="CTX_OBJ_DB_2803_1.0_fl1.0_TABLE_LIST"
+
+OBJECT  TYPE="ctx_obj_db", NAME="CTX_OBJ_DB_2803_1.0_fl1.0_TABLE_STR"
+ UNIQUE_FIELD = title  UNIQUE_RELATION = ctx_obj2window_db 
+  FIELDS
+   title ="TABLE_STR";
+   type=516;
+   idx=11;
+   behavior=16;
+   str_size=0;
+   dev=0;
+   caption ="TABLE_STR";
+   subtype ="";
+  END_FIELDS
+  RELATIONS
+   TO_NAME="WINDOW_DB_2803_1.0_fl1.0" REL=ctx_obj2window_db;
+  END_RELATIONS
+END_OBJECT  NAME="CTX_OBJ_DB_2803_1.0_fl1.0_TABLE_STR"
+
+OBJECT  TYPE="ctx_obj_db", NAME="CTX_OBJ_DB_2803_1.0_fl1.0_LIST_TABLE"
+ UNIQUE_FIELD = title  UNIQUE_RELATION = ctx_obj2window_db 
+  FIELDS
+   title ="LIST_TABLE";
+   type=518;
+   idx=12;
+   behavior=16;
+   str_size=0;
+   dev=0;
+   caption ="LIST_TABLE";
+   subtype ="";
+  END_FIELDS
+  RELATIONS
+   TO_NAME="WINDOW_DB_2803_1.0_fl1.0" REL=ctx_obj2window_db;
+  END_RELATIONS
+END_OBJECT  NAME="CTX_OBJ_DB_2803_1.0_fl1.0_LIST_TABLE"
+
+OBJECT  TYPE="ctx_obj_db", NAME="CTX_OBJ_DB_2803_1.0_fl1.0_STR_TAB1"
+ UNIQUE_FIELD = title  UNIQUE_RELATION = ctx_obj2window_db 
+  FIELDS
+   title ="STR_TAB1";
+   type=516;
+   idx=13;
+   behavior=16;
+   str_size=0;
+   dev=0;
+   caption ="STR_TAB1";
+   subtype ="";
+  END_FIELDS
+  RELATIONS
+   TO_NAME="WINDOW_DB_2803_1.0_fl1.0" REL=ctx_obj2window_db;
+  END_RELATIONS
+END_OBJECT  NAME="CTX_OBJ_DB_2803_1.0_fl1.0_STR_TAB1"
+
+OBJECT  TYPE="ctx_obj_db", NAME="CTX_OBJ_DB_2803_1.0_fl1.0_STR_TAB2"
+ UNIQUE_FIELD = title  UNIQUE_RELATION = ctx_obj2window_db 
+  FIELDS
+   title ="STR_TAB2";
+   type=516;
+   idx=14;
+   behavior=16;
+   str_size=0;
+   dev=0;
+   caption ="STR_TAB2";
+   subtype ="";
+  END_FIELDS
+  RELATIONS
+   TO_NAME="WINDOW_DB_2803_1.0_fl1.0" REL=ctx_obj2window_db;
+  END_RELATIONS
+END_OBJECT  NAME="CTX_OBJ_DB_2803_1.0_fl1.0_STR_TAB2"
+
+OBJECT  TYPE="ctx_obj_db", NAME="CTX_OBJ_DB_2803_1.0_fl1.0_LOR_DEL"
+ UNIQUE_FIELD = title  UNIQUE_RELATION = ctx_obj2window_db 
+  FIELDS
+   title ="LOR_DEL";
+   type=47;
+   idx=15;
+   behavior=16;
+   str_size=0;
+   dev=0;
+   caption ="LOR_DEL";
+   subtype ="Record List";
+  END_FIELDS
+  RELATIONS
+   TO_NAME="WINDOW_DB_2803_1.0_fl1.0" REL=ctx_obj2window_db;
+  END_RELATIONS
+END_OBJECT  NAME="CTX_OBJ_DB_2803_1.0_fl1.0_LOR_DEL"
+

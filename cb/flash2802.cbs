@@ -1,0 +1,452 @@
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' Product        :  Flashes Anywhere(tm)
+'
+' Series         :  Dovetail Workflow Series(tm)
+'
+' Name           :  Flash form
+'
+' Description    :  Displays form for adding/editing flashes
+'
+' Author         :  Dovetail Software, Inc.
+'                   4807 Spicewood Springs Rd, Bldg 4 Suite 200
+'                   Austin, TX 78759
+'                   (512) 610-5400
+'                   EMAIL: support@dovetailsoftware.com
+'                   www.dovetailsoftware.com
+'
+' Platforms       : This version supports Clarify 4.5 and later
+'
+' Copyright (C)  2000 Dovetail Software, Inc.
+' All Rights Reserved.
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' Functional Declarations
+'
+' Copyright (C) 2000. Dovetail Software. All Rights Reserved.
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+OPTION EXPLICIT
+
+                                        ' Functional prototype declarations
+Declare Public Sub get_strings(start_val As Long, num_strings As Integer, _
+                   locale As String, application As String, ret_strings As List)
+Declare Function msg_box(the_text As String, the_caption As String, the_type As Integer) _
+                         As Integer
+Declare Public Function get_sprintf(str_num As Long, locale As String, application As String, _
+                     Optional arg1 As Variant, Optional arg2 As Variant, _
+                     Optional arg3 As Variant, Optional arg4 As Variant, _
+                     Optional arg5 As Variant, Optional arg6 As Variant) _
+                     As String
+
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' Global/Form Variables
+'
+' Copyright (C) 2000. Dovetail Software. All Rights Reserved.
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+Dim is_dirty  As Boolean                ' Is the form dirty?
+
+                                        ' Global variables
+Global locale As String                 ' Locale of user
+
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' Constants
+'
+' Copyright (C) 2000. Dovetail Software. All Rights Reserved.
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+Const MSG_FL_DIRTY        = cbFirstMessage + 1
+Const MSG_FL_FOCUS_TITLE  = cbFirstMessage + 2
+Const MSG_FL_SHOW         = cbFirstMessage + 3
+Const MSG_FL_FOCUS_START  = cbFirstMessage + 4
+Const MSG_FL_FOCUS_END    = cbFirstMessage + 5
+Const MSG_FL_SEL_LIST     = cbFirstMessage + 6
+Const MSG_FL_SEL_ONE      = cbFirstMessage + 7
+
+Const SELECT_FORM = 2801
+
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' Form Load Method
+'
+' Copyright (C) 2000. Dovetail Software. All Rights Reserved.
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+Sub Form_Load()
+  Dim ret_strings As New List           ' Strings to place on controls
+  Dim emp_obj  As New Record            ' Empty record to fill Current object
+  Dim t_ret    As New BulkRetrieve      ' Structure to query the DB
+  Dim tbl_list As List                  ' List of table records
+  Dim emp_list As New List              ' Empty list for sel grid on 2804
+  Dim emp_list2 As New List             ' Empty list for deleted records on 2804
+
+                                        ' Do default action
+  Me.DoDefault
+
+                                        ' Initialize the list of records in the sel grid
+  emp_list.Clear
+  emp_list.ItemType = "record"
+  Cobj_LOR_SEL.Fill emp_list
+                                        ' Initialize the list of records 'to be deleted'
+'  emp_list2.Clear
+'  emp_list2.ItemType = "record"
+  Cobj_LOR_DEL.Fill emp_list
+                                        ' Put empty object in cobj to start
+                                        ' But assume it's active
+  emp_obj.RecordType = "alert"
+  emp_obj.SetField "x_active", 1
+  Cobj_CUR_OBJ.Fill emp_obj
+
+                                        ' Get strings for controls, place them
+  get_strings 15650, 6, locale, "", ret_strings
+  Me.Caption = ret_strings.ItemByIndex(0)
+  Cobj_STR_TAB1.Fill ret_strings.ItemByIndex(1)
+  Cobj_STR_TAB2.Fill ret_strings.ItemByIndex(2)
+  BTN_ADD.Caption = ret_strings.ItemByIndex(3)
+  BTN_REPLACE.Caption = ret_strings.ItemByIndex(4)
+  Ctl_CLOSE.Caption = ret_strings.ItemByIndex(5)
+
+                                        ' Form is not yet dirty
+                                        ' Set button state
+  is_dirty = False
+  BTN_REPLACE.Enabled = False
+
+                                        ' Get all of the tables/views with flashes
+                                        '  Order the list
+                                        '  Get the list and put in the Cobj
+  t_ret.SimpleQuery 0, "alert_table"
+  t_ret.AppendSort 0, "alias_name", cbAscending
+  t_ret.RetrieveRecords
+  Set tbl_list = t_ret.GetRecordList(0)
+  Cobj_LIST_TABLE.Fill tbl_list
+End Sub
+
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' Done Button Click Method
+'
+' Copyright (C) 2000. Dovetail Software. All Rights Reserved.
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+Public Sub CLOSE_Click()
+  Dim ret_int As Integer                ' Return value from message box
+
+  If is_dirty Then
+     ret_int = msg_box(get_sprintf(15725, locale, ""), get_sprintf(15600, locale, ""), 4)
+     If ret_int = 2 Then
+        If BTN_REPLACE.Enabled Then
+           BTN_REPLACE.Value = True
+        Else
+           BTN_ADD.Value = True
+        End If
+     End If
+  End If
+
+  Me.Close
+End Sub
+
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' Validate that we can add/replace the flash
+'
+' Copyright (C) 2000. Dovetail Software. All Rights Reserved.
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+Public Function flash_is_valid() As Boolean
+  Dim fl_rec   As Record                ' Flash record to insert
+  Dim dt_1     As String                ' Start date
+  Dim dt_2     As String                ' End date
+  Dim ret_int  As Integer               ' Return integer from msg_box
+
+                                        ' Get the flash record
+                                        ' Assume flash is not valid
+  Set fl_rec = Cobj_CUR_OBJ.Contents
+  flash_is_valid = False
+
+                                       ' If title field is empty, error/exit
+  If Trim$(fl_rec.GetField("title")) = "" Then
+     ret_int = msg_box(get_sprintf(15726, locale, ""), get_sprintf(15600, locale, ""), 0)
+     TAB_D_2803.Value = True
+     Me.NotifyChild MSG_FL_FOCUS_TITLE
+     Exit Function
+  End If
+
+                                        ' Get the dates
+                                        ' If they only supply one of the two,
+                                        '  then tell them, and set the focus
+  dt_1 = fl_rec.GetField("start_date")
+  dt_2 = fl_rec.GetField("end_date")
+  If (Left$(dt_1, 1) = "*" Or Left$(dt_1, 1) = "?") And (Left$(dt_2, 1) <> "*" And Left$(dt_2, 1) <> "?") Then
+     ret_int = msg_box(get_sprintf(15727, locale, ""), get_sprintf(15600, locale, ""), 0)
+     TAB_D_2803.Value = True
+     Me.NotifyChild MSG_FL_FOCUS_START
+     Exit Function
+  End If
+
+  If (Left$(dt_2, 1) = "*" Or Left$(dt_2, 1) = "?") And (Left$(dt_1, 1) <> "*" And Left$(dt_1, 1) <> "?") Then
+     ret_int = msg_box(get_sprintf(15728, locale, ""), get_sprintf(15600, locale, ""), 0)
+     TAB_D_2803.Value = True
+     Me.NotifyChild MSG_FL_FOCUS_END
+     Exit Function
+  End If
+
+                                        ' If the start date is after the end date
+                                        '  then error and set focus
+  If Left$(dt_1, 1) <> "?" Then
+     If CDate(dt_1) >= CDate(dt_2) Then
+        ret_int = msg_box(get_sprintf(15729, locale, ""), get_sprintf(15600, locale, ""), 0)
+        TAB_D_2803.Value = True
+        Me.NotifyChild MSG_FL_FOCUS_START
+        Exit Function
+     End If
+  End If
+
+                                        ' Everything was OK!!
+  flash_is_valid = True
+End Function
+
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' Add Button Click Method
+'
+' Copyright (C) 2000. Dovetail Software. All Rights Reserved.
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+Public Sub BTN_ADD_Click()
+  Dim fl_rec   As Record                ' Flash record to insert
+  Dim t_save   As BulkSave              ' Structure to write to the DB
+  Dim t_int    As Integer               ' Looping integer
+  Dim sel_list As List                  ' List of selected, related records
+  Dim sel_rec  As Record                ' Each selected record
+  Dim new_rec  As Record                ' New record to insert (alert_to_other)
+
+                                        ' Get the flash record
+  Set fl_rec = Cobj_CUR_OBJ.Contents
+
+                                        ' If it doesn't validate, don't do add
+  If flash_is_valid = False Then Exit Sub
+
+                                        ' If it already has an objid, clear it for the add
+  If fl_rec.GetField("objid") > 0 Then
+     fl_rec.SetField "objid", 0
+  End If
+
+                                        ' Build the bulksave and insert the flash
+                                        ' Go through the related records, and add them
+                                        '  and relate them.
+                                        '  Relate the flash to the user.
+                                        ' Commit changes
+                                        ' No longer is the data dirty
+  Set t_save = New BulkSave
+  t_save.InsertRecord fl_rec
+
+  Set sel_list = Cobj_LOR_SEL.Contents
+  For t_int = 0 To sel_list.Count - 1
+    Set sel_rec = sel_list.ItemByIndex(t_int)
+
+    Set new_rec = New Record
+    new_rec.RecordType = "alert_to_other"
+    new_rec.SetField "obj_id", sel_rec.GetField("objid")
+    new_rec.SetField "obj_num", CInt(sel_rec.GetField("zipcode"))
+    new_rec.SetField "alias_name", sel_rec.GetField("state")
+    t_save.InsertRecord new_rec
+    t_save.RelateRecords new_rec, fl_rec, "to_other2alert"
+    t_save.RelateRecordsToID fl_rec, "user", App.UserObjid, "last_update2user"
+  Next t_int
+
+
+  t_save.Save
+  is_dirty = False
+  BTN_REPLACE.Enabled = False
+End Sub
+
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' Set the Dirty Bit. Set Controls if Needed
+'
+' Copyright (C) 2000. Dovetail Software. All Rights Reserved.
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+Public Sub set_dirty()
+  Dim fl_rec As Record                  ' Flash record
+
+                                        ' Set the dirty bit
+                                        ' Get the flash record
+                                        ' If this is an existing one, then set
+                                        '  the replace button
+  is_dirty = True
+  Set fl_rec = CObj_CUR_OBJ.Contents
+  BTN_REPLACE.Enabled = fl_rec.GetField("objid") > 0
+End Sub
+
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' Replace Button Click Method
+'
+' Copyright (C) 2000. Dovetail Software. All Rights Reserved.
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+Public Sub BTN_REPLACE_Click()
+  Dim fl_rec   As Record                ' Flash record to add to
+  Dim t_ret    As New BulkRetrieve      ' Structure to retrieve data
+  Dim t_list   As List                  ' List of returned data
+  Dim t_save   As New BulkSave          ' Structure to write data
+  Dim t_int    As Integer               ' Looping integer
+  Dim o_rec    As Record                ' Other object record
+  Dim del_list As List                  ' list of deleted records
+  Dim sel_list As List                  ' List of selected records
+  Dim sel_rec  As Record                ' Each selected record
+  Dim new_rec  As Record                ' New record to insert (alert_to_other)
+
+                                        ' If flash is invalid, then don't replace
+  If flash_is_valid = False Then Exit Sub
+
+  Set del_list = Cobj_LOR_DEL.Contents
+
+                                        ' Get the flash record
+  Set fl_rec = Cobj_CUR_OBJ.Contents
+  t_save.UpdateRecord fl_rec
+
+  If del_list.Count > 0 Then
+
+    t_ret.SetRoot fl_rec
+    t_ret.TraverseFromRoot 0, "alert2alert_to_other"
+    t_ret.RetrieveRecords
+    Set t_list = t_ret.GetRecordList(0)
+
+                                        ' Delete records removed from the grid
+    For t_int = 0 To t_list.Count - 1
+      Set o_rec = t_list.ItemByIndex(t_int)
+      If del_list.FindFirstIndex(o_rec.GetField("obj_id"), "objid", _
+                                 CStr(o_rec.GetField("obj_num")), "zipcode", _
+                                 o_rec.GetField("alias_name"), "state" _
+                                ) > -1 Then
+        t_save.DeleteRecord o_rec
+      End If
+    Next t_int
+
+  End If
+
+  Set sel_list = Cobj_LOR_SEL.Contents
+  For t_int = 0 To sel_list.Count - 1
+    Set sel_rec = sel_list.ItemByIndex(t_int)
+    If sel_rec.GetField("dev") = 1000 Then        ' add only the new ones
+      Set new_rec = New Record
+      new_rec.RecordType = "alert_to_other"
+      new_rec.SetField "obj_id", sel_rec.GetField("objid")
+      new_rec.SetField "obj_num", CInt(sel_rec.GetField("zipcode"))
+      new_rec.SetField "alias_name", sel_rec.GetField("state")
+      t_save.InsertRecord new_rec
+      t_save.RelateRecords new_rec, fl_rec, "to_other2alert"
+    End If
+  Next t_int
+
+                                        ' Commit changes
+  t_save.Save
+
+  BTN_REPLACE.Enabled = False
+  is_dirty = False
+                                        ' Reset the list of records 'to be deleted'
+  del_list.Clear
+  Cobj_LOR_DEL.Fill del_list
+
+  Me.NotifyByID SELECT_FORM, MSG_FL_SEL_LIST
+End Sub
+
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' Show a Flash
+'
+' Copyright (C) 2000. Dovetail Software. All Rights Reserved.
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+Public Sub show_flash(obj_as_string As String)
+  Dim t_ret     As New BulkRetrieve     ' Structure to query the DB
+  Dim t_list    As List                 ' List returned from DB query
+  Dim fl_rec    As Record               ' Flash record
+  Dim t_int     As Integer              ' Looping integer
+  Dim o_rec     As Record               ' Each alert_to_other record
+  Dim new_list  As New List             ' New list for grid
+  Dim new_rec   As Record               ' Each record to put in the grid
+  Dim t_ret2    As New BulkRetrieve     ' Structure to query the DB
+  Dim which_rec As Integer              ' Which record in list to query
+  Dim tbl_rec   As Record               ' Table record from list
+  Dim tbl_list  As List                 ' List of table records
+  Dim tar_list  As List                 ' Target record list
+  Dim tar_rec   As Record               ' Each target record
+
+                                        ' Get the requested flash
+                                        ' Get any related objects to it
+  t_ret.SimpleQuery 0, "alert"
+  t_ret.AppendFilter 0, "objid", cbEqual, CLng(obj_as_string)
+  t_ret.TraverseFromParent 1, "alert2alert_to_other", 0
+  t_ret.RetrieveRecords
+  Set t_list = t_ret.GetRecordList(0)
+
+                                        ' Fill in the flash
+  Set fl_rec = t_list.ItemByIndex(0)
+  Cobj_CUR_OBJ.Fill fl_rec
+
+                                        ' Get the list of table types
+                                        ' Set the list type
+                                        ' Get the related objects
+                                        '  Get each of the records
+                                        '  Get the alert_to_other record
+                                        '  Figure out the alert_table for it.
+  Set tbl_list = Cobj_LIST_TABLE.Contents
+  new_list.ItemType = "record"
+  Set t_list = t_ret.GetRecordList(1)
+  For t_int = 0 To t_list.Count - 1
+    Set o_rec = t_list.ItemByIndex(t_int)
+    which_rec = tbl_list.FindFirstIndex(o_rec.GetField("alias_name"), "alias_name")
+    Set tbl_rec = tbl_list.ItemByIndex(which_rec)
+
+                                        ' Query to get the data from the object record
+    t_ret2.Clear
+    t_ret2.SimpleQuery 0, tbl_rec.GetField("table_or_view")
+    If tbl_rec.GetField("objid_column") = "" Then
+       t_ret2.AppendFilter 0, "objid", cbEqual, o_rec.GetField("obj_id")
+    Else
+       t_ret2.AppendFilter 0, tbl_rec.GetField("objid_column"), cbEqual, o_rec.GetField("obj_id")
+    End If
+    t_ret2.RetrieveRecords
+
+                                        ' Get the target record
+    Set tar_list = t_ret2.GetRecordList(0)
+    Set tar_rec = tar_list.ItemByIndex(0)
+
+                                        ' Build the address record and put it in
+                                        '  the list for the grid
+    Set new_rec = New Record
+    new_rec.RecordType = "address"
+    new_rec.SetField "objid", o_rec.GetField("obj_id")
+    new_rec.SetField "state", o_rec.GetField("alias_name")
+    new_rec.SetField "zipcode", Trim$(Str$(o_rec.GetField("obj_num")))
+    If tbl_rec.GetField("out_col1") <> "" Then
+       new_rec.SetField "address", tar_rec.GetField(tbl_rec.GetField("out_col1"))
+    End If
+    If tbl_rec.GetField("out_col2") <> "" Then
+       new_rec.SetField "address_2", tar_rec.GetField(tbl_rec.GetField("out_col2"))
+    End If
+    new_list.AppendItem new_rec
+  Next t_int
+
+                                        ' Put the list in the grid
+                                        ' Set the dirty bit and control
+  Cobj_LOR_SEL.Fill new_list
+  is_dirty = False
+  BTN_REPLACE.Enabled = False
+End Sub
+
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' Message Handler
+'
+' Copyright (C) 2000. Dovetail Software. All Rights Reserved.
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+Public Sub Message(ByVal num As Long, ByVal info As String)
+  Select Case num
+    Case cbCloseMessage
+      CLOSE_Click
+    Case MSG_FL_DIRTY
+      set_dirty
+    Case MSG_FL_SHOW
+      show_flash info
+    Case Else
+      Me.DoDefault
+  End Select
+End Sub

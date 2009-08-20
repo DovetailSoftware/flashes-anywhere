@@ -1,0 +1,228 @@
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''' 
+'                                                                          
+' Product        :  Flashes Anywhere
+'                                                                           
+' Name           :  flash_sqldb.cbs                                           
+'                                                                           
+' Description    :  Provides module for Flashes Anywhere that contain querying
+'                   SQLDB structures. By putting them in a separate module, the
+'                   module can easily be compiled on the App Server for FD
+'
+' Author          : First Choice Software, Inc.                             
+'                   4412 Spicewood Springs Road, Suite 701                            
+'                   Austin, TX 78759                                       
+'                   (512) 418-2905                                          
+'                                                                           
+' Platforms       : This version supports Clarify 5.0 and later             
+'                                                                           
+' Copyright (C)  2000 First Choice Software, Inc.                           
+' All Rights Reserved                                                       
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+Option Explicit
+
+                                        ' Necessary type declarations
+Type long_type
+  ret_long As Long
+End Type
+
+Type string_type
+  ret_string As String * 255
+End Type
+
+Type adp_db_header_record
+  schema_rev As integer
+End Type
+
+Type sql_record
+   table_name As String
+   column_name As String
+End Type
+
+Global dummyadp As adp_db_header_record
+Global dummysql As sql_record
+Global gSchemaRev as Integer            ' Schema Revision
+Global gIsOracle as Boolean             ' Is this an Oracle database?
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' FetchSchemaRev() - Fetch schema revision
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+Public Function FetchSchemaRev() As Integer
+  Dim i         As Integer
+  Dim lstResult As New List
+  Dim recResult As adp_db_header_record
+  Dim sql       As New SqlDB
+  
+  lstResult.ItemType = "adp_db_header_record"
+  sql.Select "select schema_rev from adp_db_header", lstResult
+  lstResult.GetItemByIndex 0, recResult    
+  
+  FetchSchemaRev = recResult.schema_rev
+End Function
+
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' Get the Database Type. See if Oracle
+'
+' Copyright (C) 2000. First Choice Software, Inc. All Rights Reserved
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+Public Function is_oracle() as Boolean
+  Dim lstResult As New List             ' List returned from query
+  Dim the_db    As New SqlDB
+  
+                                        ' Set up list and set error trap.
+                                        ' Do the query. If no error, it's an
+                                        '  oracle DB. Set that result and leave
+  lstResult.ItemType = "sql_record"
+  On Error Goto is_sql_db
+  the_db.select "select table_name,column_name from all_tab_columns where TABLE_NAME = 'TABLE_CASE'", lstResult
+  is_oracle = True
+  Goto end_of_func
+
+                                        ' If this is a SQL Server/Sybase DB...
+                                        '  Set that result, print out so that they
+                                        '  know to ignore the previous statement.
+is_sql_db:
+  is_oracle = False
+  'Debug.Print "PLEASE IGNORE THE ERROR ON THE PREVIOUS LINE. It is just a test to see what database system you are using."
+
+                                        ' Clear the error trap and exit
+end_of_func:
+  On Error Goto 0
+End Function
+
+
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' Is it a View or a Table?
+'
+' Copyright (C) 2000. First Choice Software. All Rights Reserved.
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+Public Function is_view(the_name As String) As Boolean
+  Dim ret_list As New List              ' Returned list for table/view
+  Dim t_sql    As New SQLDB             ' Object to query ADP tables
+  Dim sql_str  As String                ' Composed SQL String  
+  Dim lng_obj  As long_type             ' Flags for table/view
+
+                                        ' Query to see if this is a view or table
+                                        '  Return result. If bit 512 turned on, it
+                                        '  is a view
+  ret_list.ItemType = "long_type"
+  sql_str = "select type_flags from adp_tbl_name_map where type_name = '" & _
+            the_name & "'"
+  t_sql.Select sql_str, ret_list
+  ret_list.GetItemByIndex 0, lng_obj
+  is_view = (lng_obj.ret_long And 512) > 0
+End Function
+
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' Get the Table Number For a Table Record
+'
+' Copyright (C) 2000. First Choice Software. All Rights Reserved.
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+Public Function get_table_number(tbl_rec As Record) As Integer
+  Dim ret_list As New List              ' Returned list for table/view
+  Dim t_sql    As New SQLDB             ' Object to query ADP tables
+  Dim sql_str  As String                ' Composed SQL String  
+  Dim lng_obj  As long_type             ' Flags for table/view
+
+                                        ' Query to see if this is a view or table
+                                        '  Return result. If bit 512 turned on, it
+                                        '  is a view
+  ret_list.ItemType = "long_type"
+  sql_str = "select type_id from adp_tbl_name_map where type_name = '" & _
+            tbl_rec.GetField("table_or_view") & "'"
+  t_sql.Select sql_str, ret_list
+  ret_list.GetItemByIndex 0, lng_obj
+  get_table_number = lng_obj.ret_long
+End Function
+
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' Get the Fields In a Table
+'
+' Copyright (C) 2000. First Choice Software. All Rights Reserved.
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+Public Sub get_fields_in_table(ret_list As List, the_name As String)
+  Dim t_sql    As New SQLDB             ' Object to query ADP tables
+  Dim sql_str  As String                ' Composed SQL String  
+
+  sql_str = "select field_name from adp_tbl_name_map nm, adp_sch_info si where " & _
+             "nm.type_name = '" & the_name & "' and nm.type_id = si.type_id " & _
+             "order by si.field_name"
+  t_sql.Select sql_str, ret_list
+End Sub
+
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' Get the Table Number for a View Field
+'
+' Copyright (C) 2000. First Choice Software. All Rights Reserved.
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+Public Function get_tbl_num_for_vf(view_num As Integer, view_fld As String) As Long
+  Dim t_sql    As New SQLDB             ' Object to query ADP tables
+  Dim sql_str  As String                ' Composed SQL String  
+  Dim t_list   As New List              ' List for return values
+  Dim t_long   As long_type             ' Return value from query
+  Dim spec_id  As Long                  ' Spec field ID
+  
+                                        ' Get the spec_field_id for the field
+  t_list.ItemType = "long_type"
+  sql_str = "select spec_field_id from adp_sch_info where type_id = " & _
+            Trim$(Str$(view_num)) & " and field_name = '" & view_fld & "'"
+
+  t_sql.Select sql_str, t_list
+  t_list.GetItemByIndex 0, t_long
+  spec_id = t_long.ret_long
+  
+                                        ' Now get the table number for the objid field
+  sql_str = "select from_obj_type from adp_view_field_info where view_spec_field_id = " & _
+            Trim$(Str$(spec_id)) & " and view_type_id = " & view_num
+  t_sql.Select sql_str, t_list
+  t_list.GetItemByIndex 0, t_long
+  get_tbl_num_for_vf = t_long.ret_long
+End Function
+
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' Get all of the table names
+'
+' Copyright (C) 2000. First Choice Software. All Rights Reserved.
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+Public Sub get_all_table_names(ret_list As List)
+  Dim t_sql    As New SQLDB             ' Structure for ADP querying
+  Dim sql_str  As String                ' Composed SQL String  
+  
+                                        ' Set the list type
+                                        ' Set up the query
+                                        ' Query the DB and return the data
+  ret_list.ItemType = "string_type"
+  sql_str = "select type_name from adp_tbl_name_map order by type_name"
+  t_sql.Select sql_str, ret_list
+End Sub
+
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' Get the Table Number For a String
+'
+' Copyright (C) 2000. First Choice Software. All Rights Reserved.
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+Public Function get_table_num_string(tbl_name As String) As Integer
+  Dim ret_list As New List              ' Returned list for table/view
+  Dim t_sql    As New SQLDB             ' Object to query ADP tables
+  Dim sql_str  As String                ' Composed SQL String  
+  Dim lng_obj  As long_type             ' Flags for table/view
+
+                                        ' Query to see if this is a view or table
+                                        '  Return result. If bit 512 turned on, it
+                                        '  is a view
+  ret_list.ItemType = "long_type"
+  sql_str = "select type_id from adp_tbl_name_map where type_name = '" & _
+            tbl_name & "'"
+  t_sql.Select sql_str, ret_list
+  ret_list.GetItemByIndex 0, lng_obj
+  get_table_num_string = lng_obj.ret_long
+End Function

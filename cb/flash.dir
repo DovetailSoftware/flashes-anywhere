@@ -1,0 +1,27 @@
+' Global files
+flash_global.cbs -G clarify flash_global
+string.cbs -G clarify string
+get_flash.cbs -G clarify get_flash
+
+                                        ' The following line should be uncommented
+                                        '  if you are only using FA in 2-tier mode
+flash_sqldb.cbs -G clarify flash_sqldb
+                                        ' The following line should be uncommented
+                                        '  if you are compiling FA in 3-tier mode
+'flash_sqldb.cbs -G clarify appsvr -N flash_sqldb
+
+'Form files
+1947.cbs F 1947 1.0 fc1.0
+
+flash2800.cbs F 2800 1.0 fl1.0
+flash2801.cbs F 2801 1.0 fl1.0
+flash2802.cbs F 2802 1.0 fl1.0
+flash2803.cbs F 2803 1.0 fl1.0
+flash2804.cbs F 2804 1.0 fl1.0
+
+' Sample Form Routines
+'flash411.cbs F 411 7.0 fl1.0
+'flash420.cbs F 420 5.0 fl1.0
+'flash1005.cbs F 1005 1.0 fl1.0
+'flash1007.cbs F 1007 1.0 fl1.0
+'flash717.cbs F 717 6.0 fl1.0
